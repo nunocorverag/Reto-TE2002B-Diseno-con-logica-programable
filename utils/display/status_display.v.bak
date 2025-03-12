@@ -1,0 +1,38 @@
+module decoder_7_seg(
+    input incorrect, done,
+    output reg [0:6] HEX0 , HEX1, HEX2, HEX3, HEX4, HEX_5
+);
+    always @(*) 
+        begin
+            if(done == 1)
+                begin
+                    if(incorrect == 1)
+                        begin
+                            HEX5 = 7'b1111_111;
+                            HEX4 = 7'b1111_111;
+                            HEX3 = 7'b0100_001;
+                            HEX2 = 7'b1000_000;
+                            HEX1 = 7'b1001_000;
+                            HEX0 = 7'b0000_110;
+                        end
+                    else
+                        begin
+                            HEX5 = 7'b1111_111;
+                            HEX4 = 7'b0000_110;
+                            HEX3 = 7'b0101_111;
+                            HEX2 = 7'b0101_111;
+                            HEX1 = 7'b0100_011;
+                            HEX0 = 7'b0101_111;
+                        end
+                end
+            else
+                begin
+                    HEX5 = 7'b1111_111;
+                    HEX4 = 7'b1111_111;
+                    HEX3 = 7'b1111_111;
+                    HEX2 = 7'b1111_111;
+                    HEX1 = 7'b1111_111;
+                    HEX0 = 7'b1111_111;
+                end
+        end
+endmodule
