@@ -78,16 +78,6 @@ accel ACCEL_SENSOR (
     .z_out(z_accel)
 );
 
-// Módulo del acelerómetro (debes implementarlo)
-// accelerometer_module ACCEL_SENSOR (
-//     .clk(MAX10_CLK1_50),
-//     .rst(one_shot_rst),
-//     .x_out(x_accel),
-//     .y_out(y_accel),
-//     .z_out(z_accel),
-//     .select_source(select_source)
-// );
-
 // Multiplexor para seleccionar entre memoria y acelerómetro
 assign x_selected = (select_source == 1'b1) ? x_accel : x_mem;
 assign y_selected = (select_source == 1'b1) ? y_accel : y_mem;
