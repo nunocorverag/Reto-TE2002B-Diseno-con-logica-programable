@@ -5,7 +5,7 @@ module arm_position_memory #(
     parameter FREQ_TRANSMIT = 1_000  // Frecuencia deseada en Hz
 
 ) (
-    input clk, rst, rom_e,
+    input clk, rst, load_rom_data, select_source,
     output reg [9:0] x_out, y_out, z_out
 );
 
@@ -32,19 +32,19 @@ localparam TRANSMIT = 2'b10;
 localparam DONE = 2'b11;
 
 always @(posedge clk or posedge rst) begin
-    if (rst) begin
+    if (rst == 1'b1) begin
         counter <= 0;
         counter_en <= 0;
         delay_counter <= 0;
         x_out <= 0;
         y_out <= 0;
-        z_out <= 10'b1010101010;
+        z_out <= 0;
         state <= IDLE;
     end 
     else begin
         case (state)
             IDLE: begin
-                if (rom_e) begin
+                if ((load_rom_data == 1'b1) & (select_source == 1'b0)) begin
                     counter <= 0;
                     counter_en <= 1;
                     delay_counter <= 0;
@@ -53,7 +53,7 @@ always @(posedge clk or posedge rst) begin
             end
             
             TRANSMIT: begin
-                if (counter_en) begin
+                if (counter_en == 1'b1) begin
                     // Separar los 30 bits en X, Y y Z
                     x_out <= ARM_POSITIONS[counter][29:20]; 
                     y_out <= ARM_POSITIONS[counter][19:10]; 
@@ -81,7 +81,7 @@ always @(posedge clk or posedge rst) begin
             end
             
             DONE: begin
-                if (rom_e) begin
+                if (load_rom_data == 1'b1) begin
                     counter <= 0;
                     counter_en <= 1;
                     delay_counter <= 0;

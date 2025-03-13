@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
-set_global_assignment -name TOP_LEVEL_ENTITY top_robotic_arm
+set_global_assignment -name TOP_LEVEL_ENTITY accel
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 23.1STD.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:35:38  MARCH 12, 2025"
 set_global_assignment -name LAST_QUARTUS_VERSION "23.1std.1 Lite Edition"
@@ -115,18 +115,11 @@ set_location_assignment PIN_P11 -to clk
 # Asignación del boton KEY0 como rst_btn
 set_location_assignment PIN_B8 -to rst
 
-# Asignación del boton KEY1 como rom_e
-set_location_assignment PIN_A7 -to rom_e
+# Asignación del boton KEY1 como load_rom_data
+set_location_assignment PIN_A7 -to load_rom_data
 
-# Asignaciones para los switches de data_in
-set_location_assignment PIN_C10 -to data_in[0]
-set_location_assignment PIN_C11 -to data_in[1]
-set_location_assignment PIN_D12 -to data_in[2]
-set_location_assignment PIN_C12 -to data_in[3]
-set_location_assignment PIN_A12 -to data_in[4]
-set_location_assignment PIN_B12 -to data_in[5]
-set_location_assignment PIN_A13 -to data_in[6]
-set_location_assignment PIN_A14 -to data_in[7]
+# Asignaciones para los switches para seleccionar entre el acelerometro y la memoria
+set_location_assignment PIN_F15 -to select_source
 
 # Asignación de los 10 leds a un arreglo leds[9:0]
 set_location_assignment PIN_A8 -to leds[0]
