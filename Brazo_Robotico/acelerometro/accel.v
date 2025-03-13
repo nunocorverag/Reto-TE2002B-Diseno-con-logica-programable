@@ -13,28 +13,32 @@ module accel (
    input 		          		MAX10_CLK2_50,
 
    //////////// SEG7 //////////
-   output		     [7:0]		HEX0,
-   output		     [7:0]		HEX1,
-   output		     [7:0]		HEX2,
-   output		     [7:0]		HEX3,
-   output		     [7:0]		HEX4,
-	output		     [7:0]		HEX5,
+   // output		     [7:0]		HEX0,
+   // output		     [7:0]		HEX1,
+   // output		     [7:0]		HEX2,
+   // output		     [7:0]		HEX3,
+   // output		     [7:0]		HEX4,
+	// output		     [7:0]		HEX5,
 
    //////////// KEY //////////
-   input 		     [1:0]		KEY,
+   input 		     		rst,
 
    //////////// LED //////////
-   output		     [9:0]		LEDR,
+   // output		     [9:0]		LEDR,
 
    //////////// SW //////////
-   input 		     [9:0]		SW,
+   // input 		     [9:0]		SW,
 
    //////////// Accelerometer ports //////////
    output		          		GSENSOR_CS_N,
    input 		     [2:1]		GSENSOR_INT,
    output		          		GSENSOR_SCLK,
    inout 		          		GSENSOR_SDI,
-   inout 		          		GSENSOR_SDO
+   inout 		          		GSENSOR_SDO,
+
+   output [9:0] x_out,
+   output [9:0] y_out,
+   output [9:0] z_out
    );
 
 //===== Declarations
@@ -85,7 +89,7 @@ spi_control #(     // parameters
 //      displayed on four of the HEX displays in hexadecimal format.
 
 // Pressing KEY0 freezes the accelerometer's output
-assign reset_n = KEY[0]; // si se mantiene presionado el botón 0, la cuenta de los displays se congela
+assign reset_n = rst; // si se mantiene presionado el botón 0, la cuenta de los displays se congela
 
 // auxiliares para el reset y el clk_2_hz
 wire rst_n = !reset_n;
@@ -108,35 +112,39 @@ always @(posedge clk_2_hz)
 		data_z_reg <= data_z;
 	end
 
+assign x_out = data_x_reg[9:0]; // Extrae X
+assign y_out = data_y_reg[9:0]; // Extrae Y
+assign z_out = data_z_reg[9:0]; // Extrae Z
+
 // axuliares para almacenar las conversiones de unidades, decenas y centenas de data_x y data_y	
-wire [3:0] unidades_x = data_x_reg %10;
-wire [3:0] decenas_x = (data_x_reg/10)%10;
-wire [3:0] centenas_x = data_x_reg /100;
+// wire [3:0] unidades_x = data_x_reg %10;
+// wire [3:0] decenas_x = (data_x_reg/10)%10;
+// wire [3:0] centenas_x = data_x_reg /100;
 
-wire [3:0] unidades_y = data_y_reg%10;
-wire [3:0] decenas_y = (data_y_reg/10)%10;
-wire [3:0] centenas_y = data_y_reg/100;
+// wire [3:0] unidades_y = data_y_reg%10;
+// wire [3:0] decenas_y = (data_y_reg/10)%10;
+// wire [3:0] centenas_y = data_y_reg/100;
 
-// 7-segment displays HEX0-3 show data_x in hexadecimal
-seg7 s0 (
-   .in      (unidades_x), // unidades de data_x
-   .display (HEX0) );
+// // 7-segment displays HEX0-3 show data_x in hexadecimal
+// seg7 s0 (
+//    .in      (unidades_x), // unidades de data_x
+//    .display (HEX0) );
 
-seg7 s1 (
-   .in      (decenas_x), // decenas de data_x
-   .display (HEX1) );
+// seg7 s1 (
+//    .in      (decenas_x), // decenas de data_x
+//    .display (HEX1) );
 
-seg7 s2 (
-   .in      (centenas_x), // centenas de data_x
-   .display (HEX2) );
+// seg7 s2 (
+//    .in      (centenas_x), // centenas de data_x
+//    .display (HEX2) );
 
-seg7 s3 (
-   .in      (unidades_y), // unidades de data_y
-   .display (HEX3) );
+// seg7 s3 (
+//    .in      (unidades_y), // unidades de data_y
+//    .display (HEX3) );
 
-// A few statements just to light some LEDs
-seg7 s4 ( .in(decenas_y), .display(HEX4) ); // decenas de data_y
-seg7 s5 ( .in(centenas_y), .display(HEX5) ); // centenas de data_y
-assign LEDR = data_z_reg[9:0]; // unidades, decenas y centenas de data_z
+// // A few statements just to light some LEDs
+// seg7 s4 ( .in(decenas_y), .display(HEX4) ); // decenas de data_y
+// seg7 s5 ( .in(centenas_y), .display(HEX5) ); // centenas de data_y
+// assign LEDR = data_z_reg[9:0]; // unidades, decenas y centenas de data_z
 
 endmodule

@@ -8,10 +8,22 @@ module top_robotic_arm #(
     parameter WIRE_SIZE = 4, 
     parameter SEGMENTOS = 7
 ) (
-    input clk, rst, load_rom_data, select_source,  // select_source decide si usar memoria o acelerómetro
+    input rst, load_rom_data, select_source,  // select_source decide si usar memoria o acelerómetro
     output [0: SEGMENTOS - 1] D_unidades_x, D_decenas_x, D_centenas_x, // Display X
     output [0: SEGMENTOS - 1] D_unidades_y, D_decenas_y, D_centenas_y, // Display Y
-    output [9:0] leds // Display Z
+    output [9:0] leds, // Display Z
+
+    //Acelerometer
+    // - CLK
+   input ADC_CLK_10,
+   input MAX10_CLK1_50,
+   input MAX10_CLK2_50,
+
+   output GSENSOR_CS_N,
+   input [2:1] GSENSOR_INT,
+   output GSENSOR_SCLK,
+   inout GSENSOR_SDI,
+   inout GSENSOR_SDO
 );
 
 wire one_shot_rst, one_shot_load_rom_data;
@@ -21,14 +33,14 @@ wire [9:0] x_selected, y_selected, z_selected; // Datos después del multiplexor
 
 // Debouncer para reset
 debouncer_one_shot #(.INVERT_LOGIC(INVERT_RST), .DEBOUNCE_THRESHOLD(DEBOUNCE_THRESHOLD)) DEB_ONE_SHOT_RST (
-    .clk(clk),
+    .clk(MAX10_CLK1_50),
     .signal(rst),
     .signal_one_shot(one_shot_rst)
 );
 
 // Debouncer para la carga de datos de la memoria
 debouncer_one_shot #(.INVERT_LOGIC(INVERT_ROM_LOAD_DATA), .DEBOUNCE_THRESHOLD(DEBOUNCE_THRESHOLD)) DEB_ONE_SHOT_LOAD_ROM_DATA (
-    .clk(clk),
+    .clk(MAX10_CLK1_50),
     .signal(load_rom_data),
     .signal_one_shot(one_shot_load_rom_data)
 );
@@ -39,7 +51,7 @@ arm_position_memory #(
     .ADDRESS_WIDTH(ADDRESS_WIDTH),
     .FREQ_TRANSMIT(FREQ_TRANSMIT)
 ) ARM_POS_MEM (
-    .clk(clk),
+    .clk(MAX10_CLK1_50),
     .rst(one_shot_rst),
     .load_rom_data(one_shot_load_rom_data),
     .x_out(x_mem),
@@ -48,9 +60,24 @@ arm_position_memory #(
     .select_source(select_source)
 );
 
+accel ACCEL_SENSOR (
+    .ADC_CLK_10(ADC_CLK_10),
+    .MAX10_CLK1_50(MAX10_CLK1_50),
+    .MAX10_CLK2_50(MAX10_CLK2_50),
+    .rst(rst),
+    .GSENSOR_CS_N(GSENSOR_CS_N),
+    .GSENSOR_INT(GSENSOR_INT),
+    .GSENSOR_SCLK(GSENSOR_SCLK),
+    .GSENSOR_SDI(GSENSOR_SDI),
+    .GSENSOR_SDO(GSENSOR_SDO),
+    .x_out(x_accel),
+    .y_out(y_accel),
+    .z_out(z_accel)
+);
+
 // Módulo del acelerómetro (debes implementarlo)
 // accelerometer_module ACCEL_SENSOR (
-//     .clk(clk),
+//     .clk(MAX10_CLK1_50),
 //     .rst(one_shot_rst),
 //     .x_out(x_accel),
 //     .y_out(y_accel),
