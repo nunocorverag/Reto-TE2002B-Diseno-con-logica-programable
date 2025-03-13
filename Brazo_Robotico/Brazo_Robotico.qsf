@@ -121,6 +121,11 @@ set_location_assignment PIN_A7 -to load_rom_data
 # Asignaciones para los switches para seleccionar entre el acelerometro y la memoria
 set_location_assignment PIN_F15 -to select_source
 
+# Servos PWM
+set_location_assignment PIN_V10 -to pwm_servo1
+set_location_assignment PIN_W10 -to pwm_servo2
+set_location_assignment PIN_V9  -to pwm_servo3
+
 # Asignación de los 10 leds a un arreglo leds[9:0]
 set_location_assignment PIN_A8 -to leds[0]
 set_location_assignment PIN_A9 -to leds[1]
