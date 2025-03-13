@@ -1,64 +1,80 @@
 module arm_position_memory #(
     // 30 bits for X(10), Y(10) y Z(10)
     parameter DATA_WIDTH = 30,
-    parameter ADDRESS_WIDTH = 8,
-    parameter MEMORY_SIZE = 2**(ADDRESS_WIDTH) // 2 ^ 8 = 256 posiciones
+    parameter ADDRESS_WIDTH = 4,
+    parameter FREQ_TRANSMIT = 1_000  // Frecuencia deseada en Hz
+
 ) (
     input clk, rst, rom_e,
-    output reg [DATA_WIDTH-1:0] greater_num,
-    output reg [ADDRESS_WIDTH-1:0] greater_num_address
+    output reg [9:0] x_out, y_out, z_out
 );
 
-reg [DATA_WIDTH-1:0] CAM_MEMORY [0:MEMORY_SIZE-1];
+localparam MEMORY_SIZE = 2**(ADDRESS_WIDTH); // 2 ^ 4 = 16 posiciones
+
+reg [DATA_WIDTH-1:0] ARM_POSITIONS [0:MEMORY_SIZE-1];
 
 initial begin
-    $readmemh("arm_commands.hex", CAM_MEMORY);
+    $readmemb("arm_commands.bin", ARM_POSITIONS);
 end
 
 reg [ADDRESS_WIDTH-1:0] counter;
 reg counter_en;
-reg process_done;
+
+localparam CLK_FREQ = 50_000_000;
+localparam DELAY_COUNT = (CLK_FREQ / (2 * FREQ_TRANSMIT)); // Cálculo automático del contador de retardo
+reg [31:0] delay_counter; // Contador para manejar el retardo
 
 // FSM states
 reg [1:0] state;
 localparam IDLE = 2'b00;
-localparam SCANNING = 2'b01;
-localparam DONE = 2'b10;
+localparam WAIT_DELAY = 2'b01;
+localparam TRANSMIT = 2'b10;
+localparam DONE = 2'b11;
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
-        greater_num <= 0;
-        greater_num_address <= 0;
         counter <= 0;
         counter_en <= 0;
-        process_done <= 0;
+        delay_counter <= 0;
+        x_out <= 0;
+        y_out <= 0;
+        z_out <= 10'b1010101010;
         state <= IDLE;
     end 
     else begin
         case (state)
             IDLE: begin
                 if (rom_e) begin
-                    greater_num <= 0;
                     counter <= 0;
                     counter_en <= 1;
-                    process_done <= 0;
-                    state <= SCANNING;
+                    delay_counter <= 0;
+                    state <= TRANSMIT;
                 end
             end
             
-            SCANNING: begin
+            TRANSMIT: begin
                 if (counter_en) begin
-                    if (CAM_MEMORY[counter] > greater_num) begin
-                        greater_num <= CAM_MEMORY[counter];
-                        greater_num_address <= counter;
-                    end
-                    
+                    // Separar los 30 bits en X, Y y Z
+                    x_out <= ARM_POSITIONS[counter][29:20]; 
+                    y_out <= ARM_POSITIONS[counter][19:10]; 
+                    z_out <= ARM_POSITIONS[counter][9:0];
+
+                    state <= WAIT_DELAY; // Pasar al estado de espera
+                end
+            end
+
+            WAIT_DELAY: begin
+                if (delay_counter < DELAY_COUNT) begin
+                    delay_counter <= delay_counter + 1;
+                end
+                else begin
+                    delay_counter <= 0;
                     if (counter < MEMORY_SIZE - 1) begin
                         counter <= counter + 1;
+                        state <= TRANSMIT;
                     end
                     else begin
                         counter_en <= 0;
-                        process_done <= 1;
                         state <= DONE;
                     end
                 end
@@ -66,11 +82,10 @@ always @(posedge clk or posedge rst) begin
             
             DONE: begin
                 if (rom_e) begin
-                    greater_num <= 0;
                     counter <= 0;
                     counter_en <= 1;
-                    process_done <= 0;
-                    state <= SCANNING;
+                    delay_counter <= 0;
+                    state <= TRANSMIT;
                 end
             end
             
@@ -78,6 +93,5 @@ always @(posedge clk or posedge rst) begin
         endcase
     end
 end
-
 
 endmodule
