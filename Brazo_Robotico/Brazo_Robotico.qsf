@@ -153,20 +153,20 @@ set_location_assignment PIN_V11 -to GSENSOR_SDI
 set_location_assignment PIN_V12 -to GSENSOR_SDO
 
 # VGA Pin Assignments
-set_location_assignment PIN_N3 -to vga_h_sync
-set_location_assignment PIN_N1 -to vga_v_sync
-set_location_assignment PIN_AA1 -to vga_r[0]
-set_location_assignment PIN_V1 -to vga_r[1]
-set_location_assignment PIN_Y2 -to vga_r[2]
-set_location_assignment PIN_Y1 -to vga_r[3]
-set_location_assignment PIN_W1 -to vga_g[0]
-set_location_assignment PIN_T2 -to vga_g[1]
-set_location_assignment PIN_R2 -to vga_g[2]
-set_location_assignment PIN_R1 -to vga_g[3]
-set_location_assignment PIN_P1 -to vga_b[0]
-set_location_assignment PIN_T1 -to vga_b[1]
-set_location_assignment PIN_P4 -to vga_b[2]
-set_location_assignment PIN_N2 -to vga_b[3]
+set_location_assignment PIN_N3 -to hsync_out
+set_location_assignment PIN_N1 -to vsync_out
+set_location_assignment PIN_AA1 -to VGA_R[0]
+set_location_assignment PIN_V1 -to VGA_R[1]
+set_location_assignment PIN_Y2 -to VGA_R[2]
+set_location_assignment PIN_Y1 -to VGA_R[3]
+set_location_assignment PIN_W1 -to VGA_G[0]
+set_location_assignment PIN_T2 -to VGA_G[1]
+set_location_assignment PIN_R2 -to VGA_G[2]
+set_location_assignment PIN_R1 -to VGA_G[3]
+set_location_assignment PIN_P1 -to VGA_B[0]
+set_location_assignment PIN_T1 -to VGA_B[1]
+set_location_assignment PIN_P4 -to VGA_B[2]
+set_location_assignment PIN_N2 -to VGA_B[3]
 
 
 
