@@ -28,7 +28,7 @@ module top_robotic_arm #(
 // Salidas PWM para servos
     output pwm_servo1, 
     output pwm_servo2,
-    output pwm_servo3
+    output pwm_servo3,
  // Nuevas salidas VGA
     output vga_h_sync,
     output vga_v_sync,
