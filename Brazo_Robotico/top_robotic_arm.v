@@ -23,16 +23,35 @@ module top_robotic_arm #(
    input [2:1] GSENSOR_INT,
    output GSENSOR_SCLK,
    inout GSENSOR_SDI,
-   inout GSENSOR_SDO,
-    output pwm_servo1, // Salidas PWM para servos
+   inout GSENSOR_SDO, 
+
+// Salidas PWM para servos
+    output pwm_servo1, 
     output pwm_servo2,
     output pwm_servo3
+ // Nuevas salidas VGA
+    output vga_h_sync,
+    output vga_v_sync,
+    output [3:0] vga_r,
+    output [3:0] vga_g,
+    output [3:0] vga_b
+
 );
 
 wire one_shot_rst, one_shot_load_rom_data;
 wire [9:0] x_mem, y_mem, z_mem; // Datos de la memoria
 wire [9:0] x_accel, y_accel, z_accel; // Datos del acelerómetro
 wire [9:0] x_selected, y_selected, z_selected; // Datos después del multiplexor
+
+// Señales para VGA
+wire inDisplayArea;
+wire [9:0] counterX;
+wire [9:0] counterY;
+wire coord_pixel;
+reg clk_25 = 0;
+
+always @(posedge MAX10_CLK1_50)
+    clk_25 <= ~clk_25;
 
 // Debouncer para reset
 debouncer_one_shot #(.INVERT_LOGIC(INVERT_RST), .DEBOUNCE_THRESHOLD(DEBOUNCE_THRESHOLD)) DEB_ONE_SHOT_RST (
@@ -104,6 +123,31 @@ assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
         .pwm_servo2(pwm_servo2),    // Salida PWM Servo 2
         .pwm_servo3(pwm_servo3)     // Salida PWM Servo 3
     );
+
+// Instancia del generador de sincronización VGA
+hvsync_generator hvsync (
+    .clk(clk_25),
+    .vga_h_sync(vga_h_sync),
+    .vga_v_sync(vga_v_sync),
+    .counterX(counterX),
+    .counterY(counterY),
+    .inDisplayArea(inDisplayArea)
+);
+
+// Instancia del módulo para mostrar coordenadas
+coord_display coord_display_inst (
+    .x(x_selected),
+    .y(y_selected),
+    .z(z_selected),
+    .counterX(counterX),
+    .counterY(counterY),
+    .pixel_on(coord_pixel)
+);
+
+// Asignación de colores VGA
+assign vga_r = inDisplayArea ? (coord_pixel ? 4'hF : 4'h1) : 4'h0;
+assign vga_g = inDisplayArea ? (coord_pixel ? 4'hF : 4'h1) : 4'h0;
+assign vga_b = inDisplayArea ? (coord_pixel ? 4'hF : 4'h3) : 4'h0;
 
 // Asignar Z directamente a los LEDs
 assign leds = z_selected;
