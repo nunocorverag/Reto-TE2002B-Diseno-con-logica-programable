@@ -1,0 +1,80 @@
+# Reading pref.tcl
+# //  Questa Intel Starter FPGA Edition-64
+# //  Version 2023.3 win64 Jul 17 2023
+# //
+# //  Copyright 1991-2023 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# do Brazo_Robotico_run_msim_rtl_verilog.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Questa Intel Starter FPGA Edition-64 vmap 2023.3 Lib Mapping Utility 2023.07 Jul 17 2023
+# vmap work rtl_work 
+# Copying c:/intelfpga_lite/23.1std/questa_fse/win64/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+# vlog -vlog01compat -work work +incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm {C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_mapeo.v}
+# Questa Intel Starter FPGA Edition-64 vlog 2023.3 Compiler 2023.07 Jul 17 2023
+# Start time: 22:48:18 on Mar 12,2025
+# vlog -reportprogress 300 -vlog01compat -work work "+incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm" C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_mapeo.v 
+# -- Compiling module pwm_mapeo
+# 
+# Top level modules:
+# 	pwm_mapeo
+# End time: 22:48:18 on Mar 12,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vlog -vlog01compat -work work +incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm {C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_servos.v}
+# Questa Intel Starter FPGA Edition-64 vlog 2023.3 Compiler 2023.07 Jul 17 2023
+# Start time: 22:48:18 on Mar 12,2025
+# vlog -reportprogress 300 -vlog01compat -work work "+incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm" C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_servos.v 
+# -- Compiling module pwm_servos
+# 
+# Top level modules:
+# 	pwm_servos
+# End time: 22:48:18 on Mar 12,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vlog -vlog01compat -work work +incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm {C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v}
+# Questa Intel Starter FPGA Edition-64 vlog 2023.3 Compiler 2023.07 Jul 17 2023
+# Start time: 22:48:18 on Mar 12,2025
+# vlog -reportprogress 300 -vlog01compat -work work "+incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm" C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v 
+# -- Compiling module pwm_tb
+# 
+# Top level modules:
+# 	pwm_tb
+# End time: 22:48:18 on Mar 12,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L fiftyfivenm_ver -L rtl_work -L work -voptargs="+acc"  pwm_tb
+# vsim -t 1ps -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L fiftyfivenm_ver -L rtl_work -L work -voptargs=""+acc"" pwm_tb 
+# Start time: 22:48:18 on Mar 12,2025
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Warning: (vopt-10587) Some optimizations are turned off because the +acc switch is in effect. This will cause your simulation to run slowly. Please use -access/-debug to maintain needed visibility.
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=1.
+# Loading work.pwm_tb(fast)
+# Loading work.pwm_servos(fast)
+# Loading work.pwm_mapeo(fast)
+# 
+# add wave *
+# view structure
+# .main_pane.structure.interior.cs.body.struct
+# view signals
+# .main_pane.objects.interior.cs.body.tree
+# run -all
+# ** Note: $finish    : C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v(38)
+#    Time: 100200 ps  Iteration: 0  Instance: /pwm_tb
+# 1
+# Break in Module pwm_tb at C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v line 38
+# End time: 22:49:23 on Mar 12,2025, Elapsed time: 0:01:05
+# Errors: 0, Warnings: 1

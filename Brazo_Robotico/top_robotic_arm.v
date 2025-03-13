@@ -78,32 +78,32 @@ accel ACCEL_SENSOR (
     .z_out(z_accel)
 );
 
-// Módulo del acelerómetro (debes implementarlo)
-// accelerometer_module ACCEL_SENSOR (
-//     .clk(MAX10_CLK1_50),
-//     .rst(one_shot_rst),
-//     .x_out(x_accel),
-//     .y_out(y_accel),
-//     .z_out(z_accel),
-//     .select_source(select_source)
-// );
-
 // Multiplexor para seleccionar entre memoria y acelerómetro
 assign x_selected = (select_source == 1'b1) ? x_accel : x_mem;
 assign y_selected = (select_source == 1'b1) ? y_accel : y_mem;
 assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
 
 // Instancia del módulo PWM de control de servos
-// pwm_servos PWM_SERVOS (
-//     .clk(clk),
-//     .rst(one_shot_rst),
-//     .x(x_selected[9:3]),  // Tomar los 7 bits más significativos
-//     .y(y_selected[9:3]),  // Tomar los 7 bits más significativos
-//     .z(z_selected[9:3]),  // Tomar los 7 bits más significativos
-//     .pwm_servo1(pwm_servo1),
-//     .pwm_servo2(pwm_servo2),
-//     .pwm_servo3(pwm_servo3)
-// );
+    pwm_servos #(
+        .FREQ(25_000_000),          // Frecuencia del reloj
+        .INVERT_INC(1),             // Invertir lógica de incremento
+        .INVERT_DEC(1),             // Invertir lógica de decremento
+        .INVERT_RST(0),             // Invertir lógica de reset
+        .DEBOUNCE_THRESHOLD(5000),  // Umbral de debounce
+        .MIN_DC(25_000),            // Duty cycle mínimo
+        .MAX_DC(125_000),           // Duty cycle máximo
+        .STEP(10_000),              // Paso de incremento/decremento
+        .TARGET_FREQ(10)            // Frecuencia PWM deseada
+    ) PWM_SERVOS (
+        .clk(MAX10_CLK1_50),        // Reloj principal
+        .rst(one_shot_rst),         // Reset
+        .x(x_selected),             // Coordenada X
+        .y(y_selected),             // Coordenada Y
+        .z(z_selected),             // Coordenada Z
+        .pwm_servo1(pwm_servo1),    // Salida PWM Servo 1
+        .pwm_servo2(pwm_servo2),    // Salida PWM Servo 2
+        .pwm_servo3(pwm_servo3)     // Salida PWM Servo 3
+    );
 
 // Asignar Z directamente a los LEDs
 assign leds = z_selected;

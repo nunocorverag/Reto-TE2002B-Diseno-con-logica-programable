@@ -1,0 +1,97 @@
+m255
+K4
+z2
+!s12c _opt
+Z0 !s99 nomlopt
+!s11f vlog 2023.3 2023.07, Jul 17 2023
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z1 dC:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/simulation/questa
+T_opt
+!s110 1741841299
+VH2:D0`cH]jdiE[A4n?F;50
+04 6 4 work pwm_tb fast 0
+=1-a841f433c775-67d26393-1d4-79e0
+R0
+!s12b OEM100
+!s124 OEM10U5 
+o-quiet -auto_acc_if_foreign -work work -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L fiftyfivenm_ver -L rtl_work -L work +acc
+Z2 tCvgOpt 0
+n@_opt
+OL;O;2023.3;77
+vpwm_mapeo
+2C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_mapeo.v
+Z3 !s110 1741841298
+!i10b 1
+!s100 >5Ze3L2kR2G_CPNUfb^TU3
+IJzh0;5Yd=PeR;lb>@=LJm1
+R1
+w1741840321
+8C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_mapeo.v
+FC:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_mapeo.v
+!i122 0
+L0 1 38
+Z4 VDg1SIo80bB@j0V0VzS_@n1
+Z5 OL;L;2023.3;77
+r1
+!s85 0
+31
+Z6 !s108 1741841298.000000
+!s107 C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_mapeo.v|
+!s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm|C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_mapeo.v|
+!i113 0
+Z7 o-vlog01compat -work work -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z8 !s92 -vlog01compat -work work +incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R2
+vpwm_servos
+2C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_servos.v
+R3
+!i10b 1
+!s100 g8CXH?JYl?A4WR;f1QQAN2
+I8Q=8im><P4]d2IzBV`?=e0
+R1
+w1741840350
+8C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_servos.v
+FC:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_servos.v
+!i122 1
+L0 1 51
+R4
+R5
+r1
+!s85 0
+31
+R6
+!s107 C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_servos.v|
+!s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm|C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_servos.v|
+!i113 0
+R7
+R8
+R2
+vpwm_tb
+2C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v
+R3
+!i10b 1
+!s100 N<n[ZnIFezLFnEE6J?d9P0
+I]Jg0ziI[mPl`dUNVQm]EJ1
+R1
+w1741841245
+8C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v
+FC:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v
+!i122 2
+L0 1 40
+R4
+R5
+r1
+!s85 0
+31
+R6
+!s107 C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v|
+!s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm|C:/Users/andyq/Documents/QuartusProjects/logica_prog/Reto-TE2002B-Diseno-con-logica-programable/Brazo_Robotico/pwm/pwm_tb.v|
+!i113 0
+R7
+R8
+R2
