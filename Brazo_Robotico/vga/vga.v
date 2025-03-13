@@ -1,4 +1,4 @@
-module VGADemo(
+module vga(
     input MAX10_CLK1_50,    // Reloj de 50MHz de la placa
     output hsync_out,
     output vsync_out,
