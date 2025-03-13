@@ -24,6 +24,9 @@ module top_robotic_arm #(
    output GSENSOR_SCLK,
    inout GSENSOR_SDI,
    inout GSENSOR_SDO
+    output pwm_servo1, // Salidas PWM para servos
+    output pwm_servo2,
+    output pwm_servo3
 );
 
 wire one_shot_rst, one_shot_load_rom_data;
@@ -89,6 +92,18 @@ accel ACCEL_SENSOR (
 assign x_selected = (select_source == 1'b1) ? x_accel : x_mem;
 assign y_selected = (select_source == 1'b1) ? y_accel : y_mem;
 assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
+
+// Instancia del módulo PWM de control de servos
+pwm_servos PWM_SERVOS (
+    .clk(clk),
+    .rst(one_shot_rst),
+    .x(x_selected[9:3]),  // Tomar los 7 bits más significativos
+    .y(y_selected[9:3]),  // Tomar los 7 bits más significativos
+    .z(z_selected[9:3]),  // Tomar los 7 bits más significativos
+    .pwm_servo1(pwm_servo1),
+    .pwm_servo2(pwm_servo2),
+    .pwm_servo3(pwm_servo3)
+);
 
 // Asignar Z directamente a los LEDs
 assign leds = z_selected;

@@ -42,7 +42,7 @@ set_global_assignment -name DEVICE 10M50DAF484C7G
 set_global_assignment -name TOP_LEVEL_ENTITY top_robotic_arm
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 23.1STD.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:35:38  MARCH 12, 2025"
-set_global_assignment -name LAST_QUARTUS_VERSION "23.1std.1 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "23.1std.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -120,6 +120,11 @@ set_location_assignment PIN_A7 -to load_rom_data
 
 # Asignaciones para los switches para seleccionar entre el acelerometro y la memoria
 set_location_assignment PIN_F15 -to select_source
+
+# Servos PWM
+set_location_assignment PIN_V10 -to pwm_servo1
+set_location_assignment PIN_W10 -to pwm_servo2
+set_location_assignment PIN_V9  -to pwm_servo3
 
 # Asignación de los 10 leds a un arreglo leds[9:0]
 set_location_assignment PIN_A8 -to leds[0]
