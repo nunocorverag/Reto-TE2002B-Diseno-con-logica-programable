@@ -11,7 +11,7 @@ module top_robotic_arm #(
     input clk, rst, load_rom_data, select_source,  // select_source decide si usar memoria o acelerómetro
     output [0: SEGMENTOS - 1] D_unidades_x, D_decenas_x, D_centenas_x, // Display X
     output [0: SEGMENTOS - 1] D_unidades_y, D_decenas_y, D_centenas_y, // Display Y
-    output [9:0] leds // Display Z
+    output [9:0] leds, // Display Z
     output pwm_servo1, // Salidas PWM para servos
     output pwm_servo2,
     output pwm_servo3
@@ -67,7 +67,7 @@ assign y_selected = (select_source == 1'b1) ? y_accel : y_mem;
 assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
 
 // Instancia del módulo PWM de control de servos
-pwm_sercos PWM (
+pwm_servos PWM_SERVOS (
     .clk(clk),
     .rst(one_shot_rst),
     .x(x_selected[9:3]),  // Tomar los 7 bits más significativos
