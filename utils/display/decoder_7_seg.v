@@ -1,28 +1,32 @@
 module decoder_7_seg(
-    input [3:0] decoder_in,
-    output reg [0:6] decoder_out
+    input [4:0] value,
+    input enable,
+    output reg [0:6] segments
 );
-    // Segun el caso, cambiara la salida del display y sera interpretada por este
-    always @(*) 
-        begin
-            case (decoder_in)
-                0: decoder_out = 1;
-                1: decoder_out = 7'h4F;
-                4'h2: decoder_out = 7'h12;
-                4'h3: decoder_out = 7'h06;
-                4'h4: decoder_out = 7'h4C;
-                4'h5: decoder_out = 7'h24;
-                4'h6: decoder_out = 7'h20;
-                4'h7: decoder_out = 7'h0F;
-                4'h8: decoder_out = 0;
-                4'h9: decoder_out = 7'h04;
-                4'hA: decoder_out = 7'h08;
-                4'hB: decoder_out = 7'h60;
-                4'hC: decoder_out = 7'h31;
-                4'hD: decoder_out = 7'h42;
-                4'hE: decoder_out = 7'h30;
-                4'hF: decoder_out = 7'h38;
-                default: decoder_out = 7'hFF;
+    always @(*) begin
+        if (!enable)
+            segments = 7'b1111111;
+        else begin
+            case (value)
+                5'h00: segments = 7'b0000001;  // 0
+                5'h01: segments = 7'b1001111;  // 1
+                5'h02: segments = 7'b0010010;  // 2
+                5'h03: segments = 7'b0000110;  // 3
+                5'h04: segments = 7'b1001100;  // 4
+                5'h05: segments = 7'b0100100;  // 5
+                5'h06: segments = 7'b0100000;  // 6
+                5'h07: segments = 7'b0001111;  // 7
+                5'h08: segments = 7'b0000000;  // 8
+                5'h09: segments = 7'b0000100;  // 9
+                5'h0A: segments = 7'b0001000;  // A
+                5'h0B: segments = 7'b1100000;  // B
+                5'h0C: segments = 7'b0110001;  // C
+                5'h0D: segments = 7'b1000010;  // D
+                5'h0E: segments = 7'b0110000;  // E
+                5'h0F: segments = 7'b0111000;  // F
+                5'h10: segments = 7'b1111110;  // -
+                default: segments = 7'b1111111;
             endcase
         end
+    end
 endmodule
