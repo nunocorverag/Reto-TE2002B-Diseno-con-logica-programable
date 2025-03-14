@@ -1,8 +1,14 @@
 module vga(
     input MAX10_CLK1_50,    // Reloj de 50MHz de la placa
+<<<<<<< Updated upstream
     input signed [9:0] x_coord,    // Coordenada X del PWM (-512 a 511)
     input signed [9:0] y_coord,    // Coordenada Y del PWM (-512 a 511)
     input signed [9:0] z_coord,    // Coordenada Z del PWM (-512 a 511)
+=======
+    input [9:0] x_coord,    // Coordenada X del PWM (0-1023)
+    input [9:0] y_coord,    // Coordenada Y del PWM (0-1023)
+    input [9:0] z_coord,    // Coordenada Z del PWM (0-1023)
+>>>>>>> Stashed changes
     output hsync_out,
     output vsync_out,
     output [3:0] VGA_R,
@@ -28,6 +34,7 @@ module vga(
         .inDisplayArea(inDisplayArea)
     );
     
+<<<<<<< Updated upstream
     // Parámetros de coordenadas como en el módulo PWM
     localparam COORD_MIN = -270;
     localparam COORD_MAX = 270;
@@ -53,6 +60,21 @@ module vga(
     wire [3:0] z_ones = abs_z % 10;
     wire [3:0] z_tens = (abs_z % 100) / 10;
     wire [3:0] z_hundreds = (abs_z % 1000) / 100;
+=======
+    // Extraer dígitos para X, Y y Z (0-999) INVERTIDOS
+    // El orden ahora es: unidades, decenas, centenas
+    wire [3:0] x_ones = x_coord % 10;
+    wire [3:0] x_tens = (x_coord % 100) / 10;
+    wire [3:0] x_hundreds = (x_coord % 1000) / 100;
+    
+    wire [3:0] y_ones = y_coord % 10;
+    wire [3:0] y_tens = (y_coord % 100) / 10;
+    wire [3:0] y_hundreds = (y_coord % 1000) / 100;
+    
+    wire [3:0] z_ones = z_coord % 10;
+    wire [3:0] z_tens = (z_coord % 100) / 10;
+    wire [3:0] z_hundreds = (z_coord % 1000) / 100;
+>>>>>>> Stashed changes
     
     // Memoria ROM para dígitos (versión más grande 8x12)
     reg [7:0] digitMap [0:11][0:9]; // [fila][dígito]
@@ -203,7 +225,14 @@ module vga(
         digitMap[11][9] = 8'b00111100;
     end
     
+<<<<<<< Updated upstream
         // Inicialización de letterMap
+=======
+    // ROM para letras X, Y, Z (versión más grande 8x12)
+    reg [7:0] letterMap [0:11][0:2]; // [fila][letra]
+    
+    // Inicializar ROM con patrones de letras
+>>>>>>> Stashed changes
     initial begin
         // Letra X
         letterMap[0][0] = 8'b11000011;
@@ -246,6 +275,7 @@ module vga(
         letterMap[9][2] = 8'b11000000;
         letterMap[10][2] = 8'b11111111;
         letterMap[11][2] = 8'b11111111;
+<<<<<<< Updated upstream
         
         // Signo negativo (-)
         letterMap[0][3] = 8'b00000000;
@@ -262,6 +292,10 @@ module vga(
         letterMap[11][3] = 8'b00000000;
     end
 
+=======
+    end
+    
+>>>>>>> Stashed changes
     // Parámetros para posicionamiento de texto
     parameter CHAR_WIDTH = 10;    // Ancho de caracter + espacio
     parameter CHAR_HEIGHT = 16;   // Alto de caracter + espacio
@@ -269,6 +303,7 @@ module vga(
     parameter TEXT_Y_X = 100;     // Posición Y para X
     parameter TEXT_Y_Y = 150;     // Posición Y para Y
     parameter TEXT_Y_Z = 200;     // Posición Y para Z
+<<<<<<< Updated upstream
 
       // Lógica para determinar si el pixel actual es parte de un caracter
     reg text_pixel;
@@ -373,6 +408,106 @@ module vga(
         end
     end
 
+=======
+    
+// Lógica para determinar si el pixel actual es parte de un caracter
+reg text_pixel;
+
+always @* begin
+    text_pixel = 0;
+    
+    // Coordenada X
+    if (counterY >= TEXT_Y_X && counterY < TEXT_Y_X + CHAR_HEIGHT - 4) begin
+        // Letra X
+        if (counterX >= TEXT_X && counterX < TEXT_X + CHAR_WIDTH - 2) begin
+            if (counterX - TEXT_X < 8 && counterY - TEXT_Y_X < 12) begin
+                text_pixel = letterMap[counterY - TEXT_Y_X][0][7 - (counterX - TEXT_X)]; // Invertir el orden de los bits
+            end
+        end
+        // Espacio después de la letra
+        else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
+            // No dibujar nada (espacio)
+        end
+        // Dígitos de X (orden correcto: centenas, decenas, unidades)
+        else if (counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 2*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_X][x_hundreds][7 - (counterX - (TEXT_X + 2*CHAR_WIDTH))]; // Centenas
+            end
+        end
+        else if (counterX >= TEXT_X + 3*CHAR_WIDTH && counterX < TEXT_X + 4*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 3*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_X][x_tens][7 - (counterX - (TEXT_X + 3*CHAR_WIDTH))]; // Decenas
+            end
+        end
+        else if (counterX >= TEXT_X + 4*CHAR_WIDTH && counterX < TEXT_X + 5*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 4*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_X][x_ones][7 - (counterX - (TEXT_X + 4*CHAR_WIDTH))]; // Unidades
+            end
+        end
+    end
+    
+    // Coordenada Y
+    if (counterY >= TEXT_Y_Y && counterY < TEXT_Y_Y + CHAR_HEIGHT - 4) begin
+        // Letra Y
+        if (counterX >= TEXT_X && counterX < TEXT_X + CHAR_WIDTH - 2) begin
+            if (counterX - TEXT_X < 8 && counterY - TEXT_Y_Y < 12) begin
+                text_pixel = letterMap[counterY - TEXT_Y_Y][1][7 - (counterX - TEXT_X)]; // Invertir el orden de los bits
+            end
+        end
+        // Espacio después de la letra
+        else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
+            // No dibujar nada (espacio)
+        end
+        // Dígitos de Y (orden correcto: centenas, decenas, unidades)
+        else if (counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 2*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Y][y_hundreds][7 - (counterX - (TEXT_X + 2*CHAR_WIDTH))]; // Centenas
+            end
+        end
+        else if (counterX >= TEXT_X + 3*CHAR_WIDTH && counterX < TEXT_X + 4*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 3*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Y][y_tens][7 - (counterX - (TEXT_X + 3*CHAR_WIDTH))]; // Decenas
+            end
+        end
+        else if (counterX >= TEXT_X + 4*CHAR_WIDTH && counterX < TEXT_X + 5*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 4*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Y][y_ones][7 - (counterX - (TEXT_X + 4*CHAR_WIDTH))]; // Unidades
+            end
+        end
+    end
+    
+    // Coordenada Z
+    if (counterY >= TEXT_Y_Z && counterY < TEXT_Y_Z + CHAR_HEIGHT - 4) begin
+        // Letra Z
+        if (counterX >= TEXT_X && counterX < TEXT_X + CHAR_WIDTH - 2) begin
+            if (counterX - TEXT_X < 8 && counterY - TEXT_Y_Z < 12) begin
+                text_pixel = letterMap[counterY - TEXT_Y_Z][2][7 - (counterX - TEXT_X)]; // Invertir el orden de los bits
+            end
+        end
+        // Espacio después de la letra
+        else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
+            // No dibujar nada (espacio)
+        end
+        // Dígitos de Z (orden correcto: centenas, decenas, unidades)
+        else if (counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 2*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Z][z_hundreds][7 - (counterX - (TEXT_X + 2*CHAR_WIDTH))]; // Centenas
+            end
+        end
+        else if (counterX >= TEXT_X + 3*CHAR_WIDTH && counterX < TEXT_X + 4*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 3*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Z][z_tens][7 - (counterX - (TEXT_X + 3*CHAR_WIDTH))]; // Decenas
+            end
+        end
+        else if (counterX >= TEXT_X + 4*CHAR_WIDTH && counterX < TEXT_X + 5*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + 4*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Z][z_ones][7 - (counterX - (TEXT_X + 4*CHAR_WIDTH))]; // Unidades
+            end
+        end
+    end
+end
+    
+>>>>>>> Stashed changes
     // Asignar colores VGA (blanco para texto, negro para fondo)
     assign VGA_R = inDisplayArea ? (text_pixel ? 4'hF : 4'h0) : 4'h0;
     assign VGA_G = inDisplayArea ? (text_pixel ? 4'hF : 4'h0) : 4'h0;
