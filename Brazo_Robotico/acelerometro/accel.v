@@ -82,7 +82,7 @@ assign reset_n = rst; // si se mantiene presionado el botón 0, la cuenta de los
 wire rst_n = !reset_n;
 wire clk_2_hz;
 
-clkdiv #(.FREQ(1_000_000)) DIVISOR_REFRESH // FREQ -> para que cambie 2 veces por segundo
+clkdiv #(.FREQ(10_000_000)) DIVISOR_REFRESH // FREQ -> para que cambie 2 veces por segundo
 (
 	.clk(MAX10_CLK1_50),
 	.rst(rst_n),

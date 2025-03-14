@@ -1,16 +1,15 @@
 module top_robotic_arm #(    
-    parameter DATA_WIDTH = 30,
+    parameter DATA_WIDTH_MEM = 30,
+    parameter DATA_WIDTH_DISPLAY = 10,
     parameter ADDRESS_WIDTH = 4,
     parameter FREQ_TRANSMIT = 1,
     parameter INVERT_RST = 1,
     parameter INVERT_ROM_LOAD_DATA = 1,
     parameter DEBOUNCE_THRESHOLD = 500_000, 
-    parameter WIRE_SIZE = 4, 
     parameter SEGMENTOS = 7
 ) (
     input rst, load_rom_data, select_source,  // select_source decide si usar memoria o acelerómetro
-    output [0: SEGMENTOS - 1] D_unidades_x, D_decenas_x, D_centenas_x, // Display X
-    output [0: SEGMENTOS - 1] D_unidades_y, D_decenas_y, D_centenas_y, // Display Y
+    output [0: SEGMENTOS - 1] HEX_0, HEX_1, HEX_2, HEX_3, HEX_4, HEX_5,
     output [9:0] leds, // Display Z
 
     //Acelerometer
@@ -50,7 +49,7 @@ debouncer_one_shot #(.INVERT_LOGIC(INVERT_ROM_LOAD_DATA), .DEBOUNCE_THRESHOLD(DE
 
 // Módulo de memoria
 arm_position_memory #(
-    .DATA_WIDTH(DATA_WIDTH),
+    .DATA_WIDTH(DATA_WIDTH_MEM),
     .ADDRESS_WIDTH(ADDRESS_WIDTH),
     .FREQ_TRANSMIT(FREQ_TRANSMIT)
 ) ARM_POS_MEM (
@@ -106,21 +105,32 @@ assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
     );
 
 // Asignar Z directamente a los LEDs
-assign leds = z_selected;
+assign leds = x_selected;
 
 // Display para X
-display_module #(.WIRE_SIZE(WIRE_SIZE), .SEGMENTOS(SEGMENTOS), .BIT_SIZE(DATA_WIDTH)) DISPLAY_X (
-    .number(x_selected),
-    .D_unidades(D_unidades_x),
-    .D_decenas(D_decenas_x),
-    .D_centenas(D_centenas_x)
-);
+// display_module #(.SEGMENTOS(SEGMENTOS), .BIT_SIZE(DATA_WIDTH_DISPLAY)) DISPLAY_X (
+//     .number(x_selected),
+//     .HEX_3(HEX_3),
+//     .HEX_4(HEX_4),
+//     .HEX_5(HEX_5)
+// );
 
-// Display para Y
-display_module #(.WIRE_SIZE(WIRE_SIZE), .SEGMENTOS(SEGMENTOS), .BIT_SIZE(DATA_WIDTH)) DISPLAY_Y (
-    .number(y_selected),
-    .D_unidades(D_unidades_y),
-    .D_decenas(D_decenas_y),
-    .D_centenas(D_centenas_y)
+// // Display para Y
+// display_module #(.SEGMENTOS(SEGMENTOS), .BIT_SIZE(DATA_WIDTH_DISPLAY)) DISPLAY_Y (
+//     .number(y_selected),
+//     .HEX_0(HEX_0),
+//     .HEX_1(HEX_1),
+//     .HEX_2(HEX_2)
+// );
+
+display_module #(.SEGMENTOS(SEGMENTOS), .BIT_SIZE(DATA_WIDTH_DISPLAY)) DISPLAY (
+    .number(x_selected),
+    .is_signed(1),
+    .HEX_0(HEX_0),
+    .HEX_1(HEX_1),
+    .HEX_2(HEX_2),
+    .HEX_3(HEX_3),
+    .HEX_4(HEX_4),
+    .HEX_5(HEX_5)
 );
 endmodule
