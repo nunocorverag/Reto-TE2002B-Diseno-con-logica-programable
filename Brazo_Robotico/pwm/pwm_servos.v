@@ -8,13 +8,14 @@ module pwm_servos #(
     parameter MAX_DC = 125_000,           // Duty cycle máximo
     parameter STEP = 10_000,              // Paso de incremento/decremento
     parameter TARGET_FREQ = 10,           // Frecuencia PWM deseada
-    parameter BIT_SIZE = 11               // Tamaño de bits de entrada
+    parameter BIT_SIZE = 10               // Tamaño de bits de entrada
 )(
     input clk, rst,                       // Entradas: reloj y reset
     input signed [BIT_SIZE-1:0] x, y, z,  // Coordenadas x, y, z (11 bits con signo)
     output reg pwm_servo1,                // Salida PWM Servo 1
     output reg pwm_servo2,                // Salida PWM Servo 2
-    output reg pwm_servo3                 // Salida PWM Servo 3
+    output reg pwm_servo3,                 // Salida PWM Servo 3
+    output reg [9:0] leds_num
 );
     // Parámetros para el mapeo de coordenadas a duty cycle
     localparam COORD_MIN = -270;          // Valor mínimo de coordenada
@@ -64,9 +65,11 @@ module pwm_servos #(
             if (is_neg) begin
                 // Para ángulos negativos (hasta -270°)
                 angle_to_duty = DC_MID - ((DC_MID - DC_MIN) * limited_angle) / COORD_MAX;
+                leds_num = 10'b1111100000;
             end else begin
                 // Para ángulos positivos (hasta 270°)
                 angle_to_duty = DC_MID + ((DC_MAX - DC_MID) * limited_angle) / COORD_MAX;
+                leds_num = 10'b0000011111;
             end
         end
     endfunction
@@ -75,8 +78,8 @@ module pwm_servos #(
     always @(*) begin
         // Convertir cada coordenada a su correspondiente duty cycle
         DC1 = angle_to_duty(abs_x, is_negative_x);
-        DC2 = angle_to_duty(abs_y, is_negative_y);
-        DC3 = angle_to_duty(abs_z, is_negative_z);
+        // DC2 = angle_to_duty(abs_y, is_negative_y);
+        // DC3 = angle_to_duty(abs_z, is_negative_z);
     end
     
     // Generación de la señal PWM para cada servo
@@ -93,8 +96,8 @@ module pwm_servos #(
                 counter <= 32'd0;
             // Comparar con el duty cycle y generar las señales PWM
             pwm_servo1 <= (counter < DC1) ? 1'b1 : 1'b0;
-            pwm_servo2 <= (counter < DC2) ? 1'b1 : 1'b0;
-            pwm_servo3 <= (counter < DC3) ? 1'b1 : 1'b0;
+            // pwm_servo2 <= (counter < DC2) ? 1'b1 : 1'b0;
+            // pwm_servo3 <= (counter < DC3) ? 1'b1 : 1'b0;
         end
     end
 endmodule

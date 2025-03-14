@@ -1,6 +1,7 @@
 module top_robotic_arm #(    
     parameter DATA_WIDTH_MEM = 30,
     parameter DATA_WIDTH_DISPLAY = 10,
+    parameter DATA_WIDTH_PWM = 10;
     parameter ADDRESS_WIDTH = 4,
     parameter FREQ_TRANSMIT = 1,
     parameter INVERT_RST = 1,
@@ -10,7 +11,7 @@ module top_robotic_arm #(
 ) (
     input rst, load_rom_data, select_source,  // select_source decide si usar memoria o acelerómetro
     output [0: SEGMENTOS - 1] HEX_0, HEX_1, HEX_2, HEX_3, HEX_4, HEX_5,
-    output [9:0] leds, // Display Z
+    output [9:0] leds,
 
     //Acelerometer
     // - CLK
@@ -91,6 +92,7 @@ assign x_selected = (select_source == 1'b1) ? x_accel : x_mem;
 assign y_selected = (select_source == 1'b1) ? y_accel : y_mem;
 assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
 
+wire [9:0] leds_num;
 // Instancia del módulo PWM de control de servos
     pwm_servos #(
         .FREQ(25_000_000),          // Frecuencia del reloj
@@ -101,7 +103,8 @@ assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
         .MIN_DC(25_000),            // Duty cycle mínimo
         .MAX_DC(125_000),           // Duty cycle máximo
         .STEP(10_000),              // Paso de incremento/decremento
-        .TARGET_FREQ(10)            // Frecuencia PWM deseada
+        .TARGET_FREQ(10),            // Frecuencia PWM deseada
+        .BIT_SIZE(DATA_WIDTH_PWM)
     ) PWM_SERVOS (
         .clk(MAX10_CLK1_50),        // Reloj principal
         .rst(one_shot_rst),         // Reset
@@ -110,8 +113,12 @@ assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
         .z(z_selected),             // Coordenada Z
         .pwm_servo1(pwm_servo1),    // Salida PWM Servo 1
         .pwm_servo2(pwm_servo2),    // Salida PWM Servo 2
-        .pwm_servo3(pwm_servo3)     // Salida PWM Servo 3
+        .pwm_servo3(pwm_servo3),     // Salida PWM Servo 3
+        .leds_num(leds_num)
     );
+
+// LEDs Debug
+assign leds = leds_num;
 
 // Instancia del módulo VGA para visualización
 vga VGA_DISPLAY (
@@ -125,9 +132,6 @@ vga VGA_DISPLAY (
     .VGA_G(VGA_G),                  // Canal verde
     .VGA_B(VGA_B)                   // Canal azul
 );
-
-// Asignar Z directamente a los LEDs
-assign leds = x_selected;
 
 // Display para X
 // display_module #(.SEGMENTOS(SEGMENTOS), .BIT_SIZE(DATA_WIDTH_DISPLAY)) DISPLAY_X (
