@@ -1,5 +1,6 @@
 module vga(
     input MAX10_CLK1_50,    // Reloj de 50MHz de la placa
+    input rst,              // Señal de reset
     input signed [10:0] x_coord,    // Coordenada X del PWM (-270 a 270)
     input signed [10:0] y_coord,    // Coordenada Y del PWM (-270 a 270)
     input signed [10:0] z_coord,    // Coordenada Z del PWM (-270 a 270)
@@ -28,32 +29,45 @@ module vga(
         .inDisplayArea(inDisplayArea)
     );
     
-    // Señales para procesar valores negativos
-    wire signed [10:0] x_abs, y_abs, z_abs;
-    wire x_neg, y_neg, z_neg;
+    // Coordenadas con reset
+    reg signed [10:0] x_display, y_display, z_display;
     
-    // Determinar si el valor es negativo y obtener el valor absoluto
-    assign x_neg = x_coord[10];  // Bit de signo
-    assign y_neg = y_coord[10];  // Bit de signo
-    assign z_neg = z_coord[10];  // Bit de signo
+    // Lógica de reset para las coordenadas
+    always @(posedge MAX10_CLK1_50 or posedge rst) begin
+        if (rst) begin
+            // Resetear coordenadas a 90 (posición central mecánica del servo)
+            x_display <= 11'd90;
+            y_display <= 11'd90;
+            z_display <= 11'd90;
+        end else begin
+            // Actualizar coordenadas con los valores de entrada
+            x_display <= x_coord;
+            y_display <= y_coord;
+            z_display <= z_coord;
+        end
+    end
     
-    // Calcular valor absoluto
-    assign x_abs = x_neg ? -x_coord : x_coord;
-    assign y_abs = y_neg ? -y_coord : y_coord;
-    assign z_abs = z_neg ? -z_coord : z_coord;
+    // Señales para procesar valores negativos (usando la forma estándar)
+    wire is_negative_x = (x_display[10] == 1'b1);
+    wire is_negative_y = (y_display[10] == 1'b1);
+    wire is_negative_z = (z_display[10] == 1'b1);
+    
+    wire [10:0] abs_x = is_negative_x ? -x_display : x_display;
+    wire [10:0] abs_y = is_negative_y ? -y_display : y_display;
+    wire [10:0] abs_z = is_negative_z ? -z_display : z_display;
     
     // Extraer dígitos para X, Y y Z (0-270)
-    wire [3:0] x_ones = x_abs % 10;
-    wire [3:0] x_tens = (x_abs % 100) / 10;
-    wire [3:0] x_hundreds = (x_abs % 1000) / 100;
+    wire [3:0] x_ones = abs_x % 10;
+    wire [3:0] x_tens = (abs_x % 100) / 10;
+    wire [3:0] x_hundreds = (abs_x % 1000) / 100;
     
-    wire [3:0] y_ones = y_abs % 10;
-    wire [3:0] y_tens = (y_abs % 100) / 10;
-    wire [3:0] y_hundreds = (y_abs % 1000) / 100;
+    wire [3:0] y_ones = abs_y % 10;
+    wire [3:0] y_tens = (abs_y % 100) / 10;
+    wire [3:0] y_hundreds = (abs_y % 1000) / 100;
     
-    wire [3:0] z_ones = z_abs % 10;
-    wire [3:0] z_tens = (z_abs % 100) / 10;
-    wire [3:0] z_hundreds = (z_abs % 1000) / 100;
+    wire [3:0] z_ones = abs_z % 10;
+    wire [3:0] z_tens = (abs_z % 100) / 10;
+    wire [3:0] z_hundreds = (abs_z % 1000) / 100;
     
     // Memoria ROM para dígitos (versión más grande 8x12)
     reg [7:0] digitMap [0:11][0:9]; // [fila][dígito]
@@ -290,25 +304,25 @@ always @* begin
             // No dibujar nada (espacio)
         end
         // Signo negativo para X (si es necesario)
-        else if (x_neg && counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
+        else if (is_negative_x && counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
             if (counterX - (TEXT_X + 2*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
                 text_pixel = letterMap[counterY - TEXT_Y_X][3][7 - (counterX - (TEXT_X + 2*CHAR_WIDTH))]; // Signo negativo
             end
         end
         // Dígitos de X (con ajuste para el signo negativo)
-        else if (counterX >= TEXT_X + (x_neg ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (x_neg ? 4 : 3)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (x_neg ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_X][x_hundreds][7 - (counterX - (TEXT_X + (x_neg ? 3 : 2)*CHAR_WIDTH))]; // Centenas
+        else if (counterX >= TEXT_X + (is_negative_x ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_x ? 4 : 3)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_x ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_X][x_hundreds][7 - (counterX - (TEXT_X + (is_negative_x ? 3 : 2)*CHAR_WIDTH))]; // Centenas
             end
         end
-        else if (counterX >= TEXT_X + (x_neg ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (x_neg ? 5 : 4)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (x_neg ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_X][x_tens][7 - (counterX - (TEXT_X + (x_neg ? 4 : 3)*CHAR_WIDTH))]; // Decenas
+        else if (counterX >= TEXT_X + (is_negative_x ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_x ? 5 : 4)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_x ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_X][x_tens][7 - (counterX - (TEXT_X + (is_negative_x ? 4 : 3)*CHAR_WIDTH))]; // Decenas
             end
         end
-        else if (counterX >= TEXT_X + (x_neg ? 5 : 4)*CHAR_WIDTH && counterX < TEXT_X + (x_neg ? 6 : 5)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (x_neg ? 5 : 4)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_X][x_ones][7 - (counterX - (TEXT_X + (x_neg ? 5 : 4)*CHAR_WIDTH))]; // Unidades
+        else if (counterX >= TEXT_X + (is_negative_x ? 5 : 4)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_x ? 6 : 5)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_x ? 5 : 4)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_X][x_ones][7 - (counterX - (TEXT_X + (is_negative_x ? 5 : 4)*CHAR_WIDTH))]; // Unidades
             end
         end
     end
@@ -326,25 +340,25 @@ always @* begin
             // No dibujar nada (espacio)
         end
         // Signo negativo para Y (si es necesario)
-        else if (y_neg && counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
+        else if (is_negative_y && counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
             if (counterX - (TEXT_X + 2*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
                 text_pixel = letterMap[counterY - TEXT_Y_Y][3][7 - (counterX - (TEXT_X + 2*CHAR_WIDTH))]; // Signo negativo
             end
         end
         // Dígitos de Y (con ajuste para el signo negativo)
-        else if (counterX >= TEXT_X + (y_neg ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (y_neg ? 4 : 3)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (y_neg ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_Y][y_hundreds][7 - (counterX - (TEXT_X + (y_neg ? 3 : 2)*CHAR_WIDTH))]; // Centenas
+        else if (counterX >= TEXT_X + (is_negative_y ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_y ? 4 : 3)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_y ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Y][y_hundreds][7 - (counterX - (TEXT_X + (is_negative_y ? 3 : 2)*CHAR_WIDTH))]; // Centenas
             end
         end
-        else if (counterX >= TEXT_X + (y_neg ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (y_neg ? 5 : 4)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (y_neg ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_Y][y_tens][7 - (counterX - (TEXT_X + (y_neg ? 4 : 3)*CHAR_WIDTH))]; // Decenas
+        else if (counterX >= TEXT_X + (is_negative_y ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_y ? 5 : 4)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_y ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Y][y_tens][7 - (counterX - (TEXT_X + (is_negative_y ? 4 : 3)*CHAR_WIDTH))]; // Decenas
             end
         end
-        else if (counterX >= TEXT_X + (y_neg ? 5 : 4)*CHAR_WIDTH && counterX < TEXT_X + (y_neg ? 6 : 5)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (y_neg ? 5 : 4)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_Y][y_ones][7 - (counterX - (TEXT_X + (y_neg ? 5 : 4)*CHAR_WIDTH))]; // Unidades
+        else if (counterX >= TEXT_X + (is_negative_y ? 5 : 4)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_y ? 6 : 5)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_y ? 5 : 4)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Y][y_ones][7 - (counterX - (TEXT_X + (is_negative_y ? 5 : 4)*CHAR_WIDTH))]; // Unidades
             end
         end
     end
@@ -362,25 +376,25 @@ always @* begin
             // No dibujar nada (espacio)
         end
         // Signo negativo para Z (si es necesario)
-        else if (z_neg && counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
+        else if (is_negative_z && counterX >= TEXT_X + 2*CHAR_WIDTH && counterX < TEXT_X + 3*CHAR_WIDTH - 2) begin
             if (counterX - (TEXT_X + 2*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
                 text_pixel = letterMap[counterY - TEXT_Y_Z][3][7 - (counterX - (TEXT_X + 2*CHAR_WIDTH))]; // Signo negativo
             end
         end
         // Dígitos de Z (con ajuste para el signo negativo)
-        else if (counterX >= TEXT_X + (z_neg ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (z_neg ? 4 : 3)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (z_neg ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_Z][z_hundreds][7 - (counterX - (TEXT_X + (z_neg ? 3 : 2)*CHAR_WIDTH))]; // Centenas
+        else if (counterX >= TEXT_X + (is_negative_z ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_z ? 4 : 3)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_z ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Z][z_hundreds][7 - (counterX - (TEXT_X + (is_negative_z ? 3 : 2)*CHAR_WIDTH))]; // Centenas
             end
         end
-        else if (counterX >= TEXT_X + (z_neg ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (z_neg ? 5 : 4)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (z_neg ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_Z][z_tens][7 - (counterX - (TEXT_X + (z_neg ? 4 : 3)*CHAR_WIDTH))]; // Decenas
+        else if (counterX >= TEXT_X + (is_negative_z ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_z ? 5 : 4)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_z ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Z][z_tens][7 - (counterX - (TEXT_X + (is_negative_z ? 4 : 3)*CHAR_WIDTH))]; // Decenas
             end
         end
-        else if (counterX >= TEXT_X + (z_neg ? 5 : 4)*CHAR_WIDTH && counterX < TEXT_X + (z_neg ? 6 : 5)*CHAR_WIDTH - 2) begin
-            if (counterX - (TEXT_X + (z_neg ? 5 : 4)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
-                text_pixel = digitMap[counterY - TEXT_Y_Z][z_ones][7 - (counterX - (TEXT_X + (z_neg ? 5 : 4)*CHAR_WIDTH))]; // Unidades
+        else if (counterX >= TEXT_X + (is_negative_z ? 5 : 4)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_z ? 6 : 5)*CHAR_WIDTH - 2) begin
+            if (counterX - (TEXT_X + (is_negative_z ? 5 : 4)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
+                text_pixel = digitMap[counterY - TEXT_Y_Z][z_ones][7 - (counterX - (TEXT_X + (is_negative_z ? 5 : 4)*CHAR_WIDTH))]; // Unidades
             end
         end
     end

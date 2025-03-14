@@ -10,7 +10,7 @@ module pwm_servos #(
     parameter TARGET_FREQ = 10            // Frecuencia PWM deseada
 )(
     input clk, rst,                       // Entradas: reloj y reset
-    input signed [10:0] x, y, z,          // Coordenadas x, y, z (11 bits con signo para el rango -270 a 270)
+    input signed [10:0] x, y, z,          // Coordenadas x, y, z (11 bits con signo)
     output reg pwm_servo1,                // Salida PWM Servo 1
     output reg pwm_servo2,                // Salida PWM Servo 2
     output reg pwm_servo3                 // Salida PWM Servo 3
@@ -34,8 +34,14 @@ module pwm_servos #(
     localparam base_freq = FREQ;          // Frecuencia base del reloj
     localparam periodo = base_freq / TARGET_FREQ; // Cálculo del período
     
-    // Variables temporales para el cálculo
-    reg signed [31:0] x_temp, y_temp, z_temp;
+    // Señales para procesamiento de valores con signo
+    wire is_negative_x = (x[10] == 1'b1);
+    wire is_negative_y = (y[10] == 1'b1);
+    wire is_negative_z = (z[10] == 1'b1);
+    
+    wire [10:0] abs_x = is_negative_x ? -x : x;
+    wire [10:0] abs_y = is_negative_y ? -y : y;
+    wire [10:0] abs_z = is_negative_z ? -z : z;
     
     // Función para convertir ángulo a duty cycle (de -270° a 270° hacia DC_MIN a DC_MAX)
     function [31:0] angle_to_duty;
