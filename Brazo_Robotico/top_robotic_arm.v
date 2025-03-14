@@ -22,10 +22,19 @@ module top_robotic_arm #(
    input [2:1] GSENSOR_INT,
    output GSENSOR_SCLK,
    inout GSENSOR_SDI,
-   inout GSENSOR_SDO,
-    output pwm_servo1, // Salidas PWM para servos
+   inout GSENSOR_SDO, 
+
+// Salidas PWM para servos
+    output pwm_servo1, 
     output pwm_servo2,
-    output pwm_servo3
+    output pwm_servo3,
+    // Salidas VGA
+    output hsync_out,
+    output vsync_out,
+    output [3:0] VGA_R,
+    output [3:0] VGA_G,
+    output [3:0] VGA_B
+
 );
 
 wire one_shot_rst, one_shot_load_rom_data;
@@ -103,6 +112,19 @@ assign z_selected = (select_source == 1'b1) ? z_accel : z_mem;
         .pwm_servo2(pwm_servo2),    // Salida PWM Servo 2
         .pwm_servo3(pwm_servo3)     // Salida PWM Servo 3
     );
+
+// Instancia del módulo VGA para visualización
+vga VGA_DISPLAY (
+    .MAX10_CLK1_50(MAX10_CLK1_50),  // Reloj de 50MHz
+    .x_coord(x_selected),           // Coordenada X seleccionada
+    .y_coord(y_selected),           // Coordenada Y seleccionada
+    .z_coord(z_selected),           // Coordenada Z seleccionada
+    .hsync_out(hsync_out),          // Sincronización horizontal
+    .vsync_out(vsync_out),          // Sincronización vertical
+    .VGA_R(VGA_R),                  // Canal rojo
+    .VGA_G(VGA_G),                  // Canal verde
+    .VGA_B(VGA_B)                   // Canal azul
+);
 
 // Asignar Z directamente a los LEDs
 assign leds = x_selected;

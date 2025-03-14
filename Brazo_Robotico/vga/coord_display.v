@@ -19,6 +19,9 @@ module coord_display(
     reg [3:0] current_digit;
     reg drawing_text;
     reg [7:0] digit_pattern;
+    reg [7:0] letter_pattern;
+    reg [2:0] row_index;
+    reg [2:0] col_index;
     
     // Función para obtener el patrón de los dígitos (simplificado para mostrar en pantalla)
     function [7:0] get_digit_pattern;
@@ -213,85 +216,110 @@ module coord_display(
     // Lógica para dibujar las coordenadas
     always @* begin
         pixel_on = 1'b0;  // Por defecto, el píxel está apagado
+        row_index = 0;
+        col_index = 0;
+        digit_pattern = 0;
+        letter_pattern = 0;
         
         // Dibujar coordenada X
         if (counterY >= TEXT_Y_X && counterY < TEXT_Y_X + CHAR_HEIGHT) begin
+            row_index = counterY - TEXT_Y_X;
+            
             // Letra X:
             if (counterX >= TEXT_X && counterX < TEXT_X + CHAR_WIDTH) begin
-                if (get_letter_pattern("X", counterY - TEXT_Y_X)[7 - (counterX - TEXT_X)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X);
+                letter_pattern = get_letter_pattern("X", row_index);
+                pixel_on = letter_pattern[col_index];
             end
             // Dos puntos
             else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
-                if (get_letter_pattern(":", counterY - TEXT_Y_X)[7 - (counterX - TEXT_X - CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - CHAR_WIDTH);
+                letter_pattern = get_letter_pattern(":", row_index);
+                pixel_on = letter_pattern[col_index];
             end
             // Dígitos de la coordenada X
             else if (counterX >= TEXT_X + 3*CHAR_WIDTH && counterX < TEXT_X + 4*CHAR_WIDTH) begin
-                if (get_digit_pattern(x / 100, counterY - TEXT_Y_X)[7 - (counterX - TEXT_X - 3*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 3*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern(x / 100, row_index);
+                pixel_on = digit_pattern[col_index];
             end
             else if (counterX >= TEXT_X + 4*CHAR_WIDTH && counterX < TEXT_X + 5*CHAR_WIDTH) begin
-                if (get_digit_pattern((x / 10) % 10, counterY - TEXT_Y_X)[7 - (counterX - TEXT_X - 4*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 4*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern((x / 10) % 10, row_index);
+                pixel_on = digit_pattern[col_index];
             end
             else if (counterX >= TEXT_X + 5*CHAR_WIDTH && counterX < TEXT_X + 6*CHAR_WIDTH) begin
-                if (get_digit_pattern(x % 10, counterY - TEXT_Y_X)[7 - (counterX - TEXT_X - 5*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 5*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern(x % 10, row_index);
+                pixel_on = digit_pattern[col_index];
             end
         end
         
         // Dibujar coordenada Y
         else if (counterY >= TEXT_Y_Y && counterY < TEXT_Y_Y + CHAR_HEIGHT) begin
+            row_index = counterY - TEXT_Y_Y;
+            
             // Letra Y:
             if (counterX >= TEXT_X && counterX < TEXT_X + CHAR_WIDTH) begin
-                if (get_letter_pattern("Y", counterY - TEXT_Y_Y)[7 - (counterX - TEXT_X)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X);
+                letter_pattern = get_letter_pattern("Y", row_index);
+                pixel_on = letter_pattern[col_index];
             end
             // Dos puntos
             else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
-                if (get_letter_pattern(":", counterY - TEXT_Y_Y)[7 - (counterX - TEXT_X - CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - CHAR_WIDTH);
+                letter_pattern = get_letter_pattern(":", row_index);
+                pixel_on = letter_pattern[col_index];
             end
             // Dígitos de la coordenada Y
             else if (counterX >= TEXT_X + 3*CHAR_WIDTH && counterX < TEXT_X + 4*CHAR_WIDTH) begin
-                if (get_digit_pattern(y / 100, counterY - TEXT_Y_Y)[7 - (counterX - TEXT_X - 3*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 3*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern(y / 100, row_index);
+                pixel_on = digit_pattern[col_index];
             end
             else if (counterX >= TEXT_X + 4*CHAR_WIDTH && counterX < TEXT_X + 5*CHAR_WIDTH) begin
-                if (get_digit_pattern((y / 10) % 10, counterY - TEXT_Y_Y)[7 - (counterX - TEXT_X - 4*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 4*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern((y / 10) % 10, row_index);
+                pixel_on = digit_pattern[col_index];
             end
             else if (counterX >= TEXT_X + 5*CHAR_WIDTH && counterX < TEXT_X + 6*CHAR_WIDTH) begin
-                if (get_digit_pattern(y % 10, counterY - TEXT_Y_Y)[7 - (counterX - TEXT_X - 5*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 5*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern(y % 10, row_index);
+                pixel_on = digit_pattern[col_index];
             end
         end
         
         // Dibujar coordenada Z
         else if (counterY >= TEXT_Y_Z && counterY < TEXT_Y_Z + CHAR_HEIGHT) begin
+            row_index = counterY - TEXT_Y_Z;
+            
             // Letra Z:
             if (counterX >= TEXT_X && counterX < TEXT_X + CHAR_WIDTH) begin
-                if (get_letter_pattern("Z", counterY - TEXT_Y_Z)[7 - (counterX - TEXT_X)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X);
+                letter_pattern = get_letter_pattern("Z", row_index);
+                pixel_on = letter_pattern[col_index];
             end
             // Dos puntos
             else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
-                if (get_letter_pattern(":", counterY - TEXT_Y_Z)[7 - (counterX - TEXT_X - CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - CHAR_WIDTH);
+                letter_pattern = get_letter_pattern(":", row_index);
+                pixel_on = letter_pattern[col_index];
             end
             // Dígitos de la coordenada Z
             else if (counterX >= TEXT_X + 3*CHAR_WIDTH && counterX < TEXT_X + 4*CHAR_WIDTH) begin
-                if (get_digit_pattern(z / 100, counterY - TEXT_Y_Z)[7 - (counterX - TEXT_X - 3*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 3*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern(z / 100, row_index);
+                pixel_on = digit_pattern[col_index];
             end
             else if (counterX >= TEXT_X + 4*CHAR_WIDTH && counterX < TEXT_X + 5*CHAR_WIDTH) begin
-                if (get_digit_pattern((z / 10) % 10, counterY - TEXT_Y_Z)[7 - (counterX - TEXT_X - 4*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 4*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern((z / 10) % 10, row_index);
+                pixel_on = digit_pattern[col_index];
             end
             else if (counterX >= TEXT_X + 5*CHAR_WIDTH && counterX < TEXT_X + 6*CHAR_WIDTH) begin
-                if (get_digit_pattern(z % 10, counterY - TEXT_Y_Z)[7 - (counterX - TEXT_X - 5*CHAR_WIDTH)])
-                    pixel_on = 1'b1;
+                col_index = 7 - (counterX - TEXT_X - 5*CHAR_WIDTH);
+                digit_pattern = get_digit_pattern(z % 10, row_index);
+                pixel_on = digit_pattern[col_index];
             end
         end
     end
