@@ -82,7 +82,7 @@ assign reset_n = rst; // si se mantiene presionado el botón 0, la cuenta de los
 wire rst_n = !reset_n;
 wire clk_2_hz;
 
-clkdiv #(.FREQ(10_000_000)) DIVISOR_REFRESH // FREQ -> para que cambie 2 veces por segundo
+clkdiv #(.FREQ(1_000_000)) DIVISOR_REFRESH // FREQ -> para que cambie 2 veces por segundo
 (
 	.clk(MAX10_CLK1_50),
 	.rst(rst_n),
@@ -92,7 +92,7 @@ clkdiv #(.FREQ(10_000_000)) DIVISOR_REFRESH // FREQ -> para que cambie 2 veces p
 // registro auxiliar para guardar los data_x, data_y, data_z
 reg [15:0] data_x_reg, data_y_reg, data_z_reg;
 
-always @(posedge clk_2_hz)
+always @(posedge clk)
 	begin
 		data_x_reg <= data_x;
 		data_y_reg <= data_y;
