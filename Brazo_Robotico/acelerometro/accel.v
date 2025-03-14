@@ -78,21 +78,20 @@ spi_control #(     // parameters
 // Pressing KEY0 freezes the accelerometer's output
 assign reset_n = rst; // si se mantiene presionado el botón 0, la cuenta de los displays se congela
 
-// auxiliares para el reset y el clk_2_hz
+// auxiliares para el reset y el clk_div
 wire rst_n = !reset_n;
-wire clk_2_hz;
+wire clk_div;
 
-clkdiv #(.FREQ(1_000_000)) DIVISOR_REFRESH // FREQ -> para que cambie 2 veces por segundo
+clock_divider #(.FREQ(5)) DIVISOR_REFRESH // FREQ -> para que cambie 2 veces por segundo
 (
 	.clk(MAX10_CLK1_50),
-	.rst(rst_n),
-	.clk_div(clk_2_hz)
+	.clk_div(clk_div)
 );
 
 // registro auxiliar para guardar los data_x, data_y, data_z
 reg [15:0] data_x_reg, data_y_reg, data_z_reg;
 
-always @(posedge clk)
+always @(posedge clk_div)
 	begin
 		data_x_reg <= data_x;
 		data_y_reg <= data_y;
