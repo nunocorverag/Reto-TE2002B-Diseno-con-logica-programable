@@ -78,8 +78,8 @@ module pwm_servos #(
     always @(*) begin
         // Convertir cada coordenada a su correspondiente duty cycle
         DC1 = angle_to_duty(abs_x, is_negative_x);
-        // DC2 = angle_to_duty(abs_y, is_negative_y);
-        // DC3 = angle_to_duty(abs_z, is_negative_z);
+        DC2 = angle_to_duty(abs_y, is_negative_y);
+        DC3 = angle_to_duty(abs_z, is_negative_z);
     end
     
     // Generación de la señal PWM para cada servo
@@ -96,8 +96,8 @@ module pwm_servos #(
                 counter <= 32'd0;
             // Comparar con el duty cycle y generar las señales PWM
             pwm_servo1 <= (counter < DC1) ? 1'b1 : 1'b0;
-            // pwm_servo2 <= (counter < DC2) ? 1'b1 : 1'b0;
-            // pwm_servo3 <= (counter < DC3) ? 1'b1 : 1'b0;
+            pwm_servo2 <= (counter < DC2) ? 1'b1 : 1'b0;
+            pwm_servo3 <= (counter < DC3) ? 1'b1 : 1'b0;
         end
     end
 endmodule
