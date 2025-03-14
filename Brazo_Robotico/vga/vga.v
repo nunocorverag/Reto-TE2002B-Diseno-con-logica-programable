@@ -1,3 +1,6 @@
+// El módulo vga genera la señal de sincronización y el contenido gráfico que se muestra 
+// en un monitor VGA. Recibe las coordenadas x_coord, y_coord y z_coord y las convierte 
+// en valores gráficos que se dibujan en la pantalla.
 module vga(
     input MAX10_CLK1_50,    // Reloj de 50MHz de la placa
     input signed [9:0] x_coord,    // Coordenada X del PWM (-512 a 511)

@@ -22,7 +22,7 @@ module spi_serdes(
 localparam  IDLE = 0; // Wait for start.
 localparam WRITE = 1; // Write out data.
 localparam  READ = 2; // Read data.
-localparam STALL = 3; // Stall for 1 cycle while asserting "done"
+localparam STALL = 3; // Stall for 1 cycle while asserting "done", se espera 1 ciclo
 
 reg [1:0]  state = IDLE;
 reg [3:0]  count;

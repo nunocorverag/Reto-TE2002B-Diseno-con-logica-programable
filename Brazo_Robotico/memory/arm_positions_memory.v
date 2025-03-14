@@ -1,6 +1,6 @@
 module arm_position_memory #(
     // 30 bits for X(10), Y(10) y Z(10)
-    parameter DATA_WIDTH = 30,
+    parameter DATA_WIDTH = 30, //tamaño de los datos de la mem
     parameter ADDRESS_WIDTH = 4,
     parameter FREQ_TRANSMIT = 1_000  // Frecuencia deseada en Hz
 

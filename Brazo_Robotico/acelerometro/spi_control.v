@@ -44,9 +44,9 @@ localparam READ_MODE       = 2'b10;
 localparam INI_NUMBER      = 4'd11;
 
 // SPI State 
-localparam   IDLE            = 0;
-localparam   TRANSFER        = 1;
-localparam   INTERACT        = 2;
+localparam   IDLE            = 0; // espera el tiempo de muestreo
+localparam   TRANSFER        = 1; // envía el comando SPI 
+localparam   INTERACT        = 2; // realiza la transmisión SPI
 
 // Write Reg Address 
 localparam   BW_RATE         = 6'h2c;

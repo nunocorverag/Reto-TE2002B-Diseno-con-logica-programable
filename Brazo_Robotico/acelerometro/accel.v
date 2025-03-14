@@ -8,9 +8,8 @@
 
 module accel (
    //////////// CLOCK //////////
-   input 		          		ADC_CLK_10,
+   input 		          		ADC_CLK_10, 
    input 		          		MAX10_CLK1_50,
-   input 		          		MAX10_CLK2_50,
 
    //////////// RST //////////
    input 		     		rst,
@@ -43,32 +42,36 @@ wire [15:0] data_x, data_y, data_z;
 
 //===== Phase-locked Loop (PLL) instantiation. Code was copied from a module
 //      produced by Quartus' IP Catalog tool.
+// ----- toma el reloj de MAX10_CLK1_50 y produce 3 relojes derivados 
+// Este módulo maneja la comunicación SPI con el acelerómetro y obtiene los valores de data_x, data_y y data_z.
 PLL ip_inst (
    .inclk0 ( MAX10_CLK1_50 ),
-   .c0 ( clk ),                 // 25 MHz, phase   0 degrees
-   .c1 ( spi_clk ),             //  2 MHz, phase   0 degrees
-   .c2 ( spi_clk_out )          //  2 MHz, phase 270 degrees
+   .c0 ( clk ),                 // reljo de 25 MHz- sincroniza la lógica principal del sistema (procesamiento de datos del accel)
+   .c1 ( spi_clk ),             // reloj de 2 MHz - usa la frecuencia de comunicación del SPI con el accel para asegurar 
+                                // que el accel siga el ritmo de comunicación con la FPGA 
+   .c2 ( spi_clk_out )          // reloj de 2 MHz desfase de 270 grados - mueestre los datos del GSENSOR_SD0 para las lecturas precisas
 );
 
 //===== Instantiation of the spi_control module which provides the logic to 
 //      interface to the accelerometer.
+// -----
 spi_control #(     // parameters
-      .SPI_CLK_FREQ   (SPI_CLK_FREQ),
-      .UPDATE_FREQ    (UPDATE_FREQ))
+      .SPI_CLK_FREQ   (SPI_CLK_FREQ), // frecuencia para el spi_clk
+      .UPDATE_FREQ    (UPDATE_FREQ))  // frecuencia de muestreo
    spi_ctrl (      // port connections
-      .reset_n    (reset_n),
-      .clk        (clk),
-      .spi_clk    (spi_clk),
-      .spi_clk_out(spi_clk_out),
-      .data_update(data_update),
-      .data_x     (data_x),
-      .data_y     (data_y),
-		.data_z		(data_z),
-      .SPI_SDI    (GSENSOR_SDI),
-      .SPI_SDO    (GSENSOR_SDO),
-      .SPI_CSN    (GSENSOR_CS_N),
-      .SPI_CLK    (GSENSOR_SCLK),
-      .interrupt  (GSENSOR_INT)
+      .reset_n    (reset_n), 
+      .clk        (clk), 
+      .spi_clk    (spi_clk), // reloj del SPI de 2 MHz para la comunicación con el accel
+      .spi_clk_out(spi_clk_out), // reloj desfasado de 2 MHz para la sincronización 
+      .data_update(data_update), // pulso de indicaciones de datos nuevos (bandera)
+      .data_x     (data_x), // posiciones x
+      .data_y     (data_y), // posiciones y
+		.data_z		(data_z), // posiciones z
+      .SPI_SDI    (GSENSOR_SDI), // MOSI enviar datos al accel
+      .SPI_SDO    (GSENSOR_SDO), // MISO recibir datos del accel
+      .SPI_CSN    (GSENSOR_CS_N), // chip select - se activa cuando el SPI se comunica con el accel
+      .SPI_CLK    (GSENSOR_SCLK), // señal de reloj SPI - sincroniza la transferencia de datos
+      .interrupt  (GSENSOR_INT) // interrupciones del SPI del accel
 );
 
 //===== Main block
@@ -82,7 +85,7 @@ assign reset_n = rst; // si se mantiene presionado el botón 0, la cuenta de los
 wire rst_n = !reset_n;
 wire clk_div;
 
-clock_divider #(.FREQ(5)) DIVISOR_REFRESH // FREQ -> para que cambie 2 veces por segundo
+clock_divider #(.FREQ(5)) DIVISOR_REFRESH // FREQ -> para que cambie 5 veces por segundo
 (
 	.clk(MAX10_CLK1_50),
 	.clk_div(clk_div)

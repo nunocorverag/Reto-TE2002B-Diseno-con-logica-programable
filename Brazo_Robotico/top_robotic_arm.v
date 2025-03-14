@@ -1,40 +1,42 @@
 module top_robotic_arm #(    
-    parameter DATA_WIDTH_MEM = 30,
-    parameter DATA_WIDTH_DISPLAY = 10,
-    parameter DATA_WIDTH_PWM = 10;
-    parameter ADDRESS_WIDTH = 4,
-    parameter FREQ_TRANSMIT = 1,
-    parameter INVERT_RST = 1,
-    parameter INVERT_ROM_LOAD_DATA = 1,
-    parameter DEBOUNCE_THRESHOLD = 500_000, 
-    parameter SEGMENTOS = 7
+    parameter DATA_WIDTH_MEM = 30, // cada posición de la memoria
+    parameter DATA_WIDTH_DISPLAY = 10, // bits de los displays 
+    parameter DATA_WIDTH_PWM = 10; // bits del pwm
+    parameter ADDRESS_WIDTH = 4, // índice con el que se accede a la memoria
+    parameter FREQ_TRANSMIT_MEM_DATA = 1, // frecuencia con la que se transmite la información de la memoria (velocidad)
+    parameter INVERT_RST = 1, // lógica inversa para el botón
+    parameter INVERT_ROM_LOAD_DATA = 1, // lógica inversa para el botón
+    parameter DEBOUNCE_THRESHOLD = 500_000, // ciclos que se espera para contar
+    parameter SEGMENTOS = 7 // displays
 ) (
-    input rst, load_rom_data, select_source,  // select_source decide si usar memoria o acelerómetro
-    output [0: SEGMENTOS - 1] HEX_0, HEX_1, HEX_2, HEX_3, HEX_4, HEX_5,
-    output [9:0] leds,
+    input rst, 
+          load_rom_data, // botón cargar memoria
+          select_source,  // select_source decide si usar memoria o acelerómetro
+    output [0: SEGMENTOS - 1] HEX_0, HEX_1, HEX_2, HEX_3, HEX_4, HEX_5, // displays
+    output [9:0] leds, // verificación del código
 
     //Acelerometer
     // - CLK
-   input ADC_CLK_10,
-   input MAX10_CLK1_50,
-   input MAX10_CLK2_50,
+   input ADC_CLK_10, // reloj que convierte señales analógicas en valores digitales
+   input MAX10_CLK1_50, // reloj (50MHz) de la FPGA
+   // sensores
+   output GSENSOR_CS_N, // habilitar el acelerometro
+   input [2:1] GSENSOR_INT, // interrupciones para detectar el movimiento repentino
+   output GSENSOR_SCLK, // sincronizar la comunicación con el acelerometro (SPI - Serial Peripheral Interface)
+   inout GSENSOR_SDI, // FPGA manda señales y comandos (datos -> x, y y z) al acelerometro MOSI (Master Out, Slave In)
+   inout GSENSOR_SDO, // FPGA recibe señales y comandos (datos -> x, y y z) del acelerometro MISO (Master In, Slave Out)
 
-   output GSENSOR_CS_N,
-   input [2:1] GSENSOR_INT,
-   output GSENSOR_SCLK,
-   inout GSENSOR_SDI,
-   inout GSENSOR_SDO, 
-
-// Salidas PWM para servos
-    output pwm_servo1, 
-    output pwm_servo2,
-    output pwm_servo3,
+    // Salidas PWM para servos
+    output pwm_servo1, // eje x
+    output pwm_servo2, // eje y
+    output pwm_servo3, // eje z
+   
     // Salidas VGA
-    output hsync_out,
-    output vsync_out,
-    output [3:0] VGA_R,
-    output [3:0] VGA_G,
-    output [3:0] VGA_B
+    output hsync_out, // horizontal_sync - indica una nueva línea en la pantalla
+    output vsync_out, // verticar_sync - indica un nuevo cuadro (frame)
+    output [3:0] VGA_R, // rojo
+    output [3:0] VGA_G, // verde
+    output [3:0] VGA_B // azul - color de pixeles
 
 );
 
@@ -61,7 +63,7 @@ debouncer_one_shot #(.INVERT_LOGIC(INVERT_ROM_LOAD_DATA), .DEBOUNCE_THRESHOLD(DE
 arm_position_memory #(
     .DATA_WIDTH(DATA_WIDTH_MEM),
     .ADDRESS_WIDTH(ADDRESS_WIDTH),
-    .FREQ_TRANSMIT(FREQ_TRANSMIT)
+    .FREQ_TRANSMIT(FREQ_TRANSMIT_MEM_DATA)
 ) ARM_POS_MEM (
     .clk(MAX10_CLK1_50),
     .rst(one_shot_rst),
