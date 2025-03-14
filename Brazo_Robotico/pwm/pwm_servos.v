@@ -8,7 +8,8 @@ module pwm_servos #(
     parameter MAX_DC = 125_000,           // Duty cycle máximo
     parameter STEP = 10_000,              // Paso de incremento/decremento
     parameter TARGET_FREQ = 10,           // Frecuencia PWM deseada
-    parameter BIT_SIZE = 10               // Tamaño de bits de entrada
+    parameter BIT_SIZE = 10,              // Tamaño de bits de entrada
+    parameter THRESHOLD = 15             // Variacion para evitar cambios pequeños
 )(
     input clk, rst,                       // Entradas: reloj y reset
     input signed [BIT_SIZE-1:0] x, y, z,  // Coordenadas x, y, z (11 bits con signo)
@@ -34,6 +35,9 @@ module pwm_servos #(
     // Parámetros para calcular el período de la señal PWM
     localparam base_freq = FREQ;          // Frecuencia base del reloj
     localparam periodo = base_freq / TARGET_FREQ; // Cálculo del período
+    
+    // Registros para almacenar valores previos y evitar cambios menores
+    reg signed [BIT_SIZE-1:0] prev_x, prev_y, prev_z;
     
     // Lógica de signo y valor absoluto para X
     parameter is_signed = 1'b1;           // Definir que siempre manejamos números con signo
@@ -73,6 +77,22 @@ module pwm_servos #(
             end
         end
     endfunction
+
+    // Filtro de histéresis: solo actualizar si hay una variación significativa
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            prev_x <= 0;
+            prev_y <= 0;
+            prev_z <= 0;
+        end else begin
+            if ((x - prev_x > THRESHOLD) || (prev_x - x > THRESHOLD))
+                prev_x <= x;
+            if ((y - prev_y > THRESHOLD) || (prev_y - y > THRESHOLD))
+                prev_y <= y;
+            if ((z - prev_z > THRESHOLD) || (prev_z - z > THRESHOLD))
+                prev_z <= z;
+        end
+    end
     
     // Mapeo de coordenadas a duty cycle para cada servo
     always @(*) begin
