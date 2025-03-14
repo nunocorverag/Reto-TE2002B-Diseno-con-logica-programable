@@ -269,8 +269,9 @@ module vga(
     parameter TEXT_Y_X = 100;     // Posición Y para X
     parameter TEXT_Y_Y = 150;     // Posición Y para Y
     parameter TEXT_Y_Z = 200;     // Posición Y para Z
+    parameter SPACE_WIDTH = 5;  // Ancho del espacio entre letras y números
 
-      // Lógica para determinar si el pixel actual es parte de un caracter
+       // Lógica para determinar si el pixel actual es parte de un caracter
     reg text_pixel;
 
     always @* begin
@@ -284,26 +285,30 @@ module vga(
                     text_pixel = letterMap[counterY - TEXT_Y_X][0][7 - (counterX - TEXT_X)];
                 end
             end
+            // Mostrar espacio después de la letra X
+            else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH) begin
+                // No dibujar nada (espacio)
+            end
             // Mostrar signo negativo si es necesario
-            else if (is_negative_x && counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
-                    text_pixel = letterMap[counterY - TEXT_Y_X][3][7 - (counterX - (TEXT_X + CHAR_WIDTH))];
+            else if (is_negative_x && counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + CHAR_WIDTH/2) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
+                    text_pixel = letterMap[counterY - TEXT_Y_X][3][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH))];
                 end
             end
-            // Mostrar dígitos de X
-            else if (counterX >= TEXT_X + (is_negative_x ? 2 : 1)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_x ? 3 : 2)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_x ? 2 : 1)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_X][x_hundreds][7 - (counterX - (TEXT_X + (is_negative_x ? 2 : 1)*CHAR_WIDTH))];
+            // Mostrar dígitos de X (con ajuste para el signo negativo)
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH/2 : 0) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*3/2 : CHAR_WIDTH)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH/2 : 0)) < 8 && counterY - TEXT_Y_X < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_X][x_hundreds][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH/2 : 0)))];
                 end
             end
-            else if (counterX >= TEXT_X + (is_negative_x ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_x ? 4 : 3)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_x ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_X][x_tens][7 - (counterX - (TEXT_X + (is_negative_x ? 3 : 2)*CHAR_WIDTH))];
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*3/2 : CHAR_WIDTH) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*3/2 : CHAR_WIDTH)) < 8 && counterY - TEXT_Y_X < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_X][x_tens][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*3/2 : CHAR_WIDTH)))];
                 end
             end
-            else if (counterX >= TEXT_X + (is_negative_x ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_x ? 5 : 4)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_x ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_X < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_X][x_ones][7 - (counterX - (TEXT_X + (is_negative_x ? 4 : 3)*CHAR_WIDTH))];
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*7/2 : CHAR_WIDTH*3)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)) < 8 && counterY - TEXT_Y_X < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_X][x_ones][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_x ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)))];
                 end
             end
         end
@@ -316,26 +321,30 @@ module vga(
                     text_pixel = letterMap[counterY - TEXT_Y_Y][1][7 - (counterX - TEXT_X)];
                 end
             end
+            // Mostrar espacio después de la letra Y
+            else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH) begin
+                // No dibujar nada (espacio)
+            end
             // Mostrar signo negativo si es necesario
-            else if (is_negative_y && counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
-                    text_pixel = letterMap[counterY - TEXT_Y_Y][3][7 - (counterX - (TEXT_X + CHAR_WIDTH))];
+            else if (is_negative_y && counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + CHAR_WIDTH/2) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
+                    text_pixel = letterMap[counterY - TEXT_Y_Y][3][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH))];
                 end
             end
-            // Mostrar dígitos de Y
-            else if (counterX >= TEXT_X + (is_negative_y ? 2 : 1)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_y ? 3 : 2)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_y ? 2 : 1)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_Y][y_hundreds][7 - (counterX - (TEXT_X + (is_negative_y ? 2 : 1)*CHAR_WIDTH))];
+            // Mostrar dígitos de Y (con ajuste para el signo negativo)
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH/2 : 0) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*3/2 : CHAR_WIDTH)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH/2 : 0)) < 8 && counterY - TEXT_Y_Y < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_Y][y_hundreds][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH/2 : 0)))];
                 end
             end
-            else if (counterX >= TEXT_X + (is_negative_y ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_y ? 4 : 3)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_y ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_Y][y_tens][7 - (counterX - (TEXT_X + (is_negative_y ? 3 : 2)*CHAR_WIDTH))];
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*3/2 : CHAR_WIDTH) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*3/2 : CHAR_WIDTH)) < 8 && counterY - TEXT_Y_Y < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_Y][y_tens][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*3/2 : CHAR_WIDTH)))];
                 end
             end
-            else if (counterX >= TEXT_X + (is_negative_y ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_y ? 5 : 4)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_y ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Y < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_Y][y_ones][7 - (counterX - (TEXT_X + (is_negative_y ? 4 : 3)*CHAR_WIDTH))];
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*7/2 : CHAR_WIDTH*3)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)) < 8 && counterY - TEXT_Y_Y < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_Y][y_ones][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_y ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)))];
                 end
             end
         end
@@ -348,31 +357,34 @@ module vga(
                     text_pixel = letterMap[counterY - TEXT_Y_Z][2][7 - (counterX - TEXT_X)];
                 end
             end
+            // Mostrar espacio después de la letra Z
+            else if (counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH) begin
+                // No dibujar nada (espacio)
+            end
             // Mostrar signo negativo si es necesario
-            else if (is_negative_z && counterX >= TEXT_X + CHAR_WIDTH && counterX < TEXT_X + 2*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
-                    text_pixel = letterMap[counterY - TEXT_Y_Z][3][7 - (counterX - (TEXT_X + CHAR_WIDTH))];
+            else if (is_negative_z && counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + CHAR_WIDTH/2) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
+                    text_pixel = letterMap[counterY - TEXT_Y_Z][3][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH))];
                 end
             end
-            // Mostrar dígitos de Z
-            else if (counterX >= TEXT_X + (is_negative_z ? 2 : 1)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_z ? 3 : 2)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_z ? 2 : 1)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_Z][z_hundreds][7 - (counterX - (TEXT_X + (is_negative_z ? 2 : 1)*CHAR_WIDTH))];
+            // Mostrar dígitos de Z (con ajuste para el signo negativo)
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH/2 : 0) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*3/2 : CHAR_WIDTH)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH/2 : 0)) < 8 && counterY - TEXT_Y_Z < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_Z][z_hundreds][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH/2 : 0)))];
                 end
             end
-            else if (counterX >= TEXT_X + (is_negative_z ? 3 : 2)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_z ? 4 : 3)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_z ? 3 : 2)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_Z][z_tens][7 - (counterX - (TEXT_X + (is_negative_z ? 3 : 2)*CHAR_WIDTH))];
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*3/2 : CHAR_WIDTH) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*3/2 : CHAR_WIDTH)) < 8 && counterY - TEXT_Y_Z < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_Z][z_tens][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*3/2 : CHAR_WIDTH)))];
                 end
             end
-            else if (counterX >= TEXT_X + (is_negative_z ? 4 : 3)*CHAR_WIDTH && counterX < TEXT_X + (is_negative_z ? 5 : 4)*CHAR_WIDTH) begin
-                if (counterX - (TEXT_X + (is_negative_z ? 4 : 3)*CHAR_WIDTH) < 8 && counterY - TEXT_Y_Z < 12) begin
-                    text_pixel = digitMap[counterY - TEXT_Y_Z][z_ones][7 - (counterX - (TEXT_X + (is_negative_z ? 4 : 3)*CHAR_WIDTH))];
+            else if (counterX >= TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2) && counterX < TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*7/2 : CHAR_WIDTH*3)) begin
+                if (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)) < 8 && counterY - TEXT_Y_Z < 12) begin
+                    text_pixel = digitMap[counterY - TEXT_Y_Z][z_ones][7 - (counterX - (TEXT_X + CHAR_WIDTH + SPACE_WIDTH + (is_negative_z ? CHAR_WIDTH*5/2 : CHAR_WIDTH*2)))];
                 end
             end
         end
     end
-
     // Asignar colores VGA (blanco para texto, negro para fondo)
     assign VGA_R = inDisplayArea ? (text_pixel ? 4'hF : 4'h0) : 4'h0;
     assign VGA_G = inDisplayArea ? (text_pixel ? 4'hF : 4'h0) : 4'h0;
