@@ -95,12 +95,11 @@ module pwm_servos #(
     end
     
     // Mapeo de coordenadas a duty cycle para cada servo
-    always @(*) begin
-        // Convertir cada coordenada a su correspondiente duty cycle
-        DC1 = angle_to_duty(abs_x, is_negative_x);
-        DC2 = angle_to_duty(abs_y, is_negative_y);
-        DC3 = angle_to_duty(abs_z, is_negative_z);
-    end
+always @(*) begin
+    DC1 = angle_to_duty(prev_x, prev_x < 0);
+    DC2 = angle_to_duty(prev_y, prev_y < 0);
+    DC3 = angle_to_duty(prev_z, prev_z < 0);
+end
     
     // Generación de la señal PWM para cada servo
     always @(posedge clk or posedge rst) begin
